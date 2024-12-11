@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\Whatsapp\Utils\Contact;
 use App\Services\Whatsapp\Utils\Message;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Netflie\WhatsAppCloudApi\WebHook;
 use Netflie\WhatsAppCloudApi\WhatsAppCloudApi;
 
@@ -46,5 +47,10 @@ class WhatsappController extends Controller
         $data['wam_id'] = $decoded['messages'][0]['id'];
         $item = $this->saveMessage($data);
         dd($item);
+    }
+
+    public function conversations(Request $request){
+        $data = [];
+        return Inertia::render('Whatsapp', $data);
     }
 }

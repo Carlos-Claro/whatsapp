@@ -17,7 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->validateCsrfTokens(except:[
             'webhook',
-            'send_message'
+            'send_message',
+            'conversations',
         ]);
 
         //
