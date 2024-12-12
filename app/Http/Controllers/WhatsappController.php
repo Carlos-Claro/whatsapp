@@ -51,6 +51,6 @@ class WhatsappController extends Controller
 
     public function conversations(Request $request){
         $data = [];
-        return Inertia::render('Whatsapp', $data);
+        return Inertia::render('Whatsapp/Whatsapp', $data);
     }
 }

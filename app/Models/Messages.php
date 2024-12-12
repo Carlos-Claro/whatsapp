@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Messages extends Model
 {
@@ -20,4 +21,9 @@ class Messages extends Model
         'updated_at',
 
     ];
+    public function conversation(): HasOne
+    {
+        return $this->hasOne(Conversations::class, 'id', 'conversation_id');
+    }
+
 }
