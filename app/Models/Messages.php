@@ -17,6 +17,7 @@ class Messages extends Model
         'data',
         'status',
         'contact_id',
+        'conversation_id',
         'created_at',
         'updated_at',
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Conversations extends Model
 {
@@ -19,13 +20,19 @@ class Conversations extends Model
     protected function casts(): array {
         return [
             'created_at' => 'datetime:Y-m-d H:i',
-        ]
+        ];
     }
 
+    public function members(): HasMany{
+        return $this->hasMany(Conversation_has::class, 'conversation_id', 'id');
+    }
     public function contact(): HasOne {
-        return $this->hasOne(Contacts::class, 'id', 'contact_id');
+        return $this->hasOne(Conversation_has::class, 'conversation_id', 'id')->whereHasMorph('memberable', Contacts::class)->with('contact');
     }
     public function messages(): HasMany{
         return $this->hasMany(Messages::class, 'conversation_id', 'id');
+    }
+    public function lastMessage(): HasOne {
+        return $this->hasOne(Messages::class, 'conversation_id', 'id')->latestOfMany();
     }
 }

@@ -68,32 +68,40 @@ class WhatsappWebhook extends Controller
             //Text Type Notification
             if ($this->event instanceof Text) {
                     $message = $this->saveMessage([
-                        "wam_id" => $this->event->id(),
-                        "name" => $this->event->customer()->name(),
-                        "wa_id" => $this->event->customer()->phoneNumber(),
-                        "type" => 'text',
-                        "created_at" => $this->event->receivedAt(),
-                        "body" => $this->event->message(),
-                        "caption" => null,
-                        "data" => null,
-                        "status" => 'delivered',
-                        "contact_id" => $contact->id,
+                        'message' => [
+                            "wam_id" => $this->event->id(),
+                            "name" => $this->event->customer()->name(),
+                            "wa_id" => $this->event->customer()->phoneNumber(),
+                            "type" => 'text',
+                            "created_at" => $this->event->receivedAt(),
+                            "body" => $this->event->message(),
+                            "caption" => null,
+                            "data" => null,
+                            "status" => 'delivered',
+                            "contact_id" => $contact->id,
+                        ],
+                        'contact' => $contact,
+                        'type' => 'contact',
                     ]);
             }
 
             //Media Type Notification
             if ($this->event instanceof Media) {
                     $message = $this->saveMessage([
-                        "wam_id" => $this->event->id(),
-                        "name" => $this->event->customer()->name(),
-                        "wa_id" => $this->event->customer()->phoneNumber(),
-                        "type" => 'image',
-                        "timestamp" => ($this->event->receivedAt())->format('Y-m-d H:i:s'),
-                        "body" => $this->compileMedia($this->event->imageId(), $this->event->mimeType()),
-                        "caption" => $this->event->caption(),
-                        "data" => null,
-                        "status" => 'delivered',
-                        "contact_id" => $contact->id,
+                        'message' => [
+                            "wam_id" => $this->event->id(),
+                            "name" => $this->event->customer()->name(),
+                            "wa_id" => $this->event->customer()->phoneNumber(),
+                            "type" => 'image',
+                            "timestamp" => ($this->event->receivedAt())->format('Y-m-d H:i:s'),
+                            "body" => $this->compileMedia($this->event->imageId(), $this->event->mimeType()),
+                            "caption" => $this->event->caption(),
+                            "data" => null,
+                            "status" => 'delivered',
+                            "contact_id" => $contact->id,
+                        ],
+                        'contact' => $contact,
+                        'type' => 'contact',
                    ]);
             }
 

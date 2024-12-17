@@ -1,6 +1,17 @@
 <script setup>
 import { Badge, Button, Divider } from 'primevue';
+import { onMounted, ref } from 'vue';
 
+const props = defineProps({
+    conversations: Object,
+})
+const activeConversations = ref()
+const updateConversations = (item) => {
+    activeConversations.value = props.conversations[item]
+}
+onMounted(() => {
+    activeConversations.value = props.conversations.open
+})
 </script>
 <template>
     <div class="w-full bg-teal-700">
@@ -8,13 +19,13 @@ import { Badge, Button, Divider } from 'primevue';
             <p class="text-2xl pl-2 pt-2 font-mono">Conversas</p>
             <Divider />
             <div class="grid grid-flow-col gap-1">
-                <Button type="button" label="Tudo" badge="2" />
-                <Button type="button" label="Iniciadas" badge="2" />
-                <Button type="button" label="Fechadas" badge="2" />
+                <Button type="button" label="Tudo" :badge="props.conversations.all.count" />
+                <Button type="button" label="Abertas" :badge="props.conversations.open.items.length" />
+                <Button type="button" label="Fechadas" :badge="props.conversations.closed.items.length" />
             </div>
         </div>
         <div class="grid grid-flow-row">
-            <div v-for="n in 3" :class="`p-2 shadow-inner shadow-lg w-full border border-slate-500 ${ n==1 ? 'bg-slate-200' : 'bg-slate-300'}`"  >
+            <div v-for="item in activeConversations" :class="`p-2 shadow-inner shadow-lg w-full border border-slate-500 ${ n==1 ? 'bg-slate-200' : 'bg-slate-300'}`"  >
                 <div class="grid grid-flow-col grid-cols-6">
                     <span class="pi pi-user col-span-1" style="font-size: 2.5rem;"></span>
                     <div class="text-center  sm:text-left col-span-4">

@@ -1,10 +1,13 @@
 <script setup>
 
 import WhatsappLayout from '@/Layouts/WhatsappLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import Options from './Partials/Sidebar/Options.vue';
 import Conversations from './Partials/Sidebar/Conversations.vue';
 import Conversation from './Partials/Conversation.vue';
+
+const page = usePage()
+console.log(page.props.conversations)
 
 
 </script>
@@ -14,7 +17,7 @@ import Conversation from './Partials/Conversation.vue';
         <div class="sidebar basis-1/4">
             <div class="flex flex-row h-full">
                 <Options />
-                <Conversations />
+                <Conversations :conversations="page.props.conversations" />
             </div>
         </div>
         <div class="basis-3/4 grid grid-flow-row grid-rows-12">

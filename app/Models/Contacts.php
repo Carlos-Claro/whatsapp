@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Contacts extends Model
 {
@@ -16,4 +18,8 @@ class Contacts extends Model
         'updated_at',
 
     ];
+    public function conversations(): MorphMany
+    {
+        return $this->morphMany(Conversation_has::class,'memberable');
+    }
 }

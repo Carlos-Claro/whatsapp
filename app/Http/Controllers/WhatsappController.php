@@ -24,33 +24,33 @@ class WhatsappController extends Controller
         echo $webhook->verify($_GET, 'powi0000');
     }
 
-    public function send_message(Request $request){
+    public function send_message(Request $request)
+    {
+
+        //wamid.HBgMNTU0MTkyNTkxNjU1FQIAERgSMDlBNjZDMTEyOEYxNzIwRjc0AA==
         $contact = [
             'name' => 'Eu',
-            'phone' => 5541992591655,
-            'phone_id' => 5541992591655,
+            'phone' => 554192591655,
+            'phone_id' => 554192591655,
         ];
         $contact = $this->existsContact($contact);
-        $data = [
+        $message = [
             "name" => 'Eu',
-            "wa_id" => 5541992591655,
+            "wa_id" => 554192591655,
             "type" => 'text',
-            "body" => 'mensagem de teste, https://powinternet.com.br',
+            "body" => 'mensagem de teste 2, https://powinternet.com.br',
             "caption" => null,
             "data" => null,
-            "status" => 'delivered',
+            "status" => 'sent',
             "contact_id" => $contact->id,
         ];
-        $response = $this->whatsapp->sendTextMessage($data['wa_id'], $data['body']. true);
-        $decoded = $response->decodedBody();
-        dump($response);
-        $data['wam_id'] = $decoded['messages'][0]['id'];
-        $item = $this->saveMessage($data);
-        dd($item);
+        $this->send($request, $message, $contact);
+
     }
 
     public function conversations(Request $request){
-        $data = [];
-        return Inertia::render('Whatsapp/Whatsapp', $data);
+        $resume = $this->getResume($request->user());
+        dd($resume);
+        return Inertia::render('Whatsapp/Whatsapp', ['conversations' => $resume]);
     }
 }

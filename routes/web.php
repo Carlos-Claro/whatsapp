@@ -24,11 +24,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/conversations', [WhatsappController::class, 'conversations'])->name('conversations');
+    Route::get('/send_message', [WhatsappController::class, 'send_message'])->name('whatsapp.send_message');
 });
 
 Route::get('/webhook', [WhatsappController::class, 'set'])->name('webhook.set');
 Route::post('/send_message', [WhatsappController::class, 'send_message'])->name('whatsapp.send_message');
 Route::post('/webhook', WhatsappWebhook::class);
-Route::get('conversations', [WhatsappController::class, 'conversations'])->name('whatsapp.conversations');
 
 require __DIR__.'/auth.php';
