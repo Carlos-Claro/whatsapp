@@ -56,4 +56,8 @@ class User extends Authenticatable
     {
         return $this->morphOne(Conversation_has::class,'memberable');
     }
+    public function messages(): MorphMany
+    {
+        return $this->morphMany(Messages::class, 'memberable');
+    }
 }

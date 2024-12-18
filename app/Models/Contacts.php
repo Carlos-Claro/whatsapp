@@ -22,4 +22,8 @@ class Contacts extends Model
     {
         return $this->morphMany(Conversation_has::class,'memberable');
     }
+    public function messages(): MorphMany
+    {
+        return $this->morphMany(Messages::class, 'memberable');
+    }
 }

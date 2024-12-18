@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Messages extends Model
 {
@@ -26,5 +27,15 @@ class Messages extends Model
     {
         return $this->hasOne(Conversations::class, 'id', 'conversation_id');
     }
+    public function memberable(): MorphTo
+    {
+        return $this->morphTo();
+    }
+    public function contact(): HasOne{
+        return $this->hasOne(Contacts::class, 'id', 'memberable_id');
+    }
 
+    public function user(): HasOne{
+        return $this->hasOne(User::class, 'id', 'memberable_id');
+    }
 }

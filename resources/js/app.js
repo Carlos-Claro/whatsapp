@@ -9,7 +9,7 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
-import { Tooltip } from 'primevue';
+import { ToastService, Tooltip } from 'primevue';
 
 const MyPreset = definePreset(Aura, {
     semantic: {
@@ -90,6 +90,7 @@ createInertiaApp({
                     },
                 },
             })
+            .use(ToastService)
             .directive('tooltip', Tooltip)
             .mount(el);
     },

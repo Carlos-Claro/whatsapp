@@ -11,19 +11,45 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 trait Message{
-    public function send(Request $request, $message, Contacts $contact): void {
+    public function send(Request $request, $message, Contacts $contact, ?Conversations $conversation): void {
         $response = $this->whatsapp->sendTextMessage($message['wa_id'], $message['body'], true);
         $decoded = $response->decodedBody();
         $message['wam_id'] = $decoded['messages'][0]['id'];
         $message['status'] = 'delivered';
         $data = [
-            'type' => 'contact',
+            'type' => 'user',
             'message' => $message,
             'contact' => $contact,
             'user' => $request->user(),
         ];
-        $item = $this->saveMessage($data);
-        dd($item);
+        if ( isset($conversation) ){
+            $data['conversation'] = $conversation;
+        }
+        $this->saveMessage($data);
+    }
+    public function saveMessage($data){
+        if( ! isset($data['conversation']) || ! $data['conversation'] ){
+            $conversation = $this->activeConversation($data['contact']);
+            if ( ! isset($conversation) || ! $conversation ){
+                $conversation = Conversations::create(['status' => 0]);
+                $data['contact']->conversations()->create(['conversation_id' => $conversation->id,'status' => 1]);
+                if ( isset($data['user']) ){
+                    $data['user']->conversations()->create(['conversation_id' => $conversation->id, 'status' => 1]);
+                }
+            }
+        }
+        else{
+            $conversation = $data['conversation'];
+        }
+        $data['message']['conversation_id'] = $conversation->id;
+        $message = Messages::create($data['message']);
+        if ( $data['type'] == 'user' ){
+            $message->memberable()->associate($data['user']);
+            $message->save();
+        } else {
+            $message->memberable()->associate($data['contact']);
+            $message->save();
+        }
     }
     public function existsMessageInDatabase ($id){
         return Messages::where('wam_id', $id)
@@ -34,6 +60,7 @@ trait Message{
     public function getResume(User $user): Collection {
         $activeConversations = $this->conversationsUser($user, 0);
         $closedConversations = $this->conversationsUser($user, 1);
+        $nobodyConversations = $this->conversationsNobody(0);
         return collect([
             'all' => [
                 'count' => $activeConversations->count() + $closedConversations->count(),
@@ -45,6 +72,10 @@ trait Message{
             'closed' => [
                 'count' => $closedConversations->count(),
                 'items' => $this->toArray($closedConversations),
+            ],
+            'nobody' => [
+                'count' => $nobodyConversations->count(),
+                'items' => $this->toArray($nobodyConversations),
             ],
         ]);
     }
@@ -70,6 +101,15 @@ trait Message{
         $results = $conversation->with(['members', 'contact'])->get();
         return $results;
     }
+    public function conversationsNobody($status = 0)
+    {
+        $conversation =  Conversations::whereDoesntHave('members', function(Builder $query) {
+            return $query->whereHasMorph('memberable', User::class);
+        })->where('conversations.status', $status);
+        $results = $conversation->with(['members', 'contact'])->get();
+
+        return $results;
+    }
     protected $contact;
     public function activeConversation($contact){
         $conversation = Conversations::whereHas('members', function(Builder $query) use($contact){
@@ -79,25 +119,8 @@ trait Message{
         })->where('conversations.status', 0)->first();
         return $conversation;
     }
-    public function saveMessage($data){
-        if( ! isset($data['conversation']) || ! $data['conversation'] ){
-            if ( $data['type'] == 'contact' ){
-                $conversation = $this->activeConversation($data['contact']);
-            }
-            if ( ! isset($conversation) || ! $conversation ){
-                $conversation = Conversations::create(['status' => 0]);
-                $data['contact']->conversations()->create(['conversation_id' => $conversation->id,'status' => 1]);
-                if ( isset($data['user']) ){
-                    $data['user']->conversations()->create(['conversation_id' => $conversation->id, 'status' => 1]);
-                }
-            }
-        }
-        else{
-            $conversation = $data['conversation'];
-        }
-        $data['message']['conversation_id'] = $conversation->id;
-        $message = Messages::create($data['message']);
-        return [$conversation, $message];
-    }
 
+    public function getMessages(int $id) {
+        return Messages::where('conversation_id', $id)->get();
+    }
 }

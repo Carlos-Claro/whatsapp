@@ -1,59 +1,109 @@
 <script setup>
-import { Button, InputText, Menu } from 'primevue';
-import { ref } from 'vue';
-const menu = ref()
-const itemsMenu = ref([
-    {
-        label: 'Anexos',
-        items: [
-            {
-                label: 'Imagem',
-                icon: 'pi pi-images',
-            },
-            {
-                label: 'Document',
-                icon: 'pi pi-book',
-            },
-        ],
+import { useFetch } from '@vueuse/core';
+import { Button, InputText, Menu, Toast, useToast } from 'primevue';
+import { computed, onMounted, onUpdated, reactive, ref, watch, watchEffect } from 'vue';
+import Message from './Message.vue';
+import Send from './Send.vue';
+
+const props = defineProps({
+    conversation: {
+        type: Object,
+        default: 0,
     },
-])
-const toggle = (event) => {
-    menu.value.toggle(event);
-};
+})
+
+const toast = useToast()
+const url = ref('')
+const { execute, isFetching, data, onFetchError, onFetchResponse, isFinished} = useFetch(
+    url, {
+        refetch:false,
+        immediate:false
+    }).get().json()
+onFetchResponse((e) => {
+    console.log(e)
+    toast.add({ severity: 'success', summary: 'Status de fetch: ' + e.status, 'detail' : 'Raças retornadas com sucesso.', life: 3000})
+})
+onFetchError((e) => {
+    console.log(e)
+    toast.add({ severity: 'danger', summary: 'Status de fetch: ' + e.status, 'detail' : 'Erro, verifique.', life: 3000})
+})
+let messages = reactive({
+    isFetching,
+    data: computed(() => {
+        try{
+            return data.value
+        }catch(e){
+            return null
+        }
+    })
+})
+watchEffect(() => {
+    if ( props.conversation ){
+        url.value = route('get_messages', {'id': props.conversation.id})
+        execute()
+    }else{
+
+    }
+})
+watch(isFinished, () => {
+    console.log(data)
+    console.log(messages)
+
+
+})
+onMounted(() => {
+    if ( props.conversation ){
+        url.value = route('get_messages', {'id': props.conversation.id})
+        execute()
+    }else{
+
+    }
+})
+const logTeste = (e) => {
+    console.log(e)
+
+}
 </script>
 <template>
-    <div class="bg-teal-900 p-4 w-full row-span-1 self-start">
-        <div class="flex flex-row">
-            <span class="pi pi-user w-16" style="font-size: 2.5rem;"></span>
-            <div class="text-center grow">
-                <p class="text-lg text-left text-white font-sans">
-                    Nome
-                </p>
+    <Toast />
+    <template v-if="props.conversation">
+        <div class="bg-teal-900 p-4 w-full row-span-1 self-start">
+            <div class="flex flex-row">
+                <span class="pi pi-user w-16" style="font-size: 2.5rem;"></span>
+                <div class="text-center grow">
+                    <p class="text-lg text-left text-white font-sans">
+                        {{  props.conversation.contact.name  }}
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
-    <div class=" bg-gray-800 row-span-10 h-full self-center overflow-y-scroll scroll-smooth">
-        <div class="flex flex-col place-content-end">
-            <template v-for="n in 25" >
-                <div :class="`box-conversa ${n%2 == 0 ? 'place-items-start' : 'place-items-end'} `">
-                    <div :class="`flex  flex-col text-right text-black h-auto w-fit px-4 py-2 my-2 mx-1 ${n%2 == 0 ? 'bg-green-300' : 'bg-green-200'}`"   >
-                        <p :class="`font-base ${n%2 == 0 ? 'text-left' : 'text-right'}`">
-                            Olá, tudo bem? blablabla bla bla bla, blablabla {{ n }}
-                        </p>
-                        <div :class="`flex flex-row gap-2 ${n%2 == 0 ? 'place-content-start' : 'place-content-end'}`">
-                            <p class="text-gray-600 font-xs ">Hoje, 10:{{ n }}</p>
-                            <p class="text-pink-700 font-xs ">lido</p>
-                        </div>
-                    </div>
+        <div class=" bg-gray-800 row-span-10 h-full self-center overflow-y-scroll scroll-smooth">
+            <div class="flex flex-col place-content-end" >
+                <template v-for="item in messages.data" v-if="messages.data != null" :ref="isFinished">
+                    <Message :item="item" />
+                </template>
+                <template v-else>
+                    <Message :item="props.conversation.lastMessage" />
+                </template>
+            </div>
+        </div>
+        <Send :conversation="props.conversation" />
+    </template>
+    <template v-else>
+        <div class="bg-teal-900 p-4 w-full row-span-1 self-start">
+            <div class="flex flex-row">
+                <!-- <span class="pi pi-user w-16" style="font-size: 2.5rem;"></span> -->
+                <div class="text-center grow">
+                    <p class="text-lg text-left text-white font-sans">
+                        Nenhuma mensagem carregada.
+                    </p>
                 </div>
-            </template>
+            </div>
         </div>
-    </div>
-    <div class=" bg-teal-800 w-full row-span-1 h-full self-end">
-        <div class="flex gap-1">
-            <InputText placeholder="Digite sua mensagem" type="text" class="grow mx-2 my-1" />
-            <Button type="button" icon="pi pi-paperclip" @click="toggle" aria-haspopup="true" aria-controls="overlay_menu" class="mx-2 my-1" />
-            <Menu ref="menu" id="overlay_menu" :model="itemsMenu" :popup="true" />
+        <div class=" bg-gray-800 row-span-10 h-full self-center overflow-y-scroll scroll-smooth">
+            <div class="flex flex-col place-content-end">
+            </div>
         </div>
-    </div>
+    </template>
+
 </template>

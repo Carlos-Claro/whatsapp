@@ -78,7 +78,7 @@ class WhatsappWebhook extends Controller
                             "caption" => null,
                             "data" => null,
                             "status" => 'delivered',
-                            "contact_id" => $contact->id,
+
                         ],
                         'contact' => $contact,
                         'type' => 'contact',
@@ -98,7 +98,7 @@ class WhatsappWebhook extends Controller
                             "caption" => $this->event->caption(),
                             "data" => null,
                             "status" => 'delivered',
-                            "contact_id" => $contact->id,
+
                         ],
                         'contact' => $contact,
                         'type' => 'contact',
