@@ -50,7 +50,7 @@ class WhatsappController extends Controller
 
     public function conversations(Request $request){
         $resume = $this->getResume($request->user());
-        dd($resume);
+        // dd($resume);
         return Inertia::render('Whatsapp/Whatsapp', ['conversations' => $resume]);
     }
 }
