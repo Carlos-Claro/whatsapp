@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\WhatsappSendMessage;
 use App\Models\Contacts;
 use App\Models\Conversations;
 use App\Services\Whatsapp\Utils\Contact;
@@ -10,18 +11,12 @@ use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Netflie\WhatsAppCloudApi\WebHook;
-use Netflie\WhatsAppCloudApi\WhatsAppCloudApi;
+
 
 class WhatsappController extends Controller
 {
     use Contact, Message;
-    private WhatsAppCloudApi $whatsapp;
-    public function __construct(){
-        $this->whatsapp = new WhatsAppCloudApi([
-            'from_phone_number_id' => env('WHATSAPP_FROM_PHONE_NUMBER_ID'),
-            'access_token' => env('WHATSAPP_TOKEN'),
-        ]);
-    }
+
     public function set(Request $request){
         $webhook = new WebHook();
         echo $webhook->verify($_GET, 'powi0000');
@@ -33,14 +28,25 @@ class WhatsappController extends Controller
         $message = [
             "name" => $contact->name,
             "wa_id" => $contact->phone_id,
+            "wam_id" => 0,
             "type" => 'text',
             "body" => $request->message,
             "caption" => null,
             "data" => null,
             "status" => 'sent',
-
+            'conversation_id' => $conversation->id,
         ];
-        $this->send($request, $message, $contact, $conversation);
+        $data = [
+            'type' => 'user',
+            'message' => $message,
+            'contact' => $contact,
+            'user' => $request->user(),
+        ];
+        if ( isset($conversation) ){
+            $data['conversation'] = $conversation;
+        }
+        $message = $this->saveMessage($data);
+        WhatsappSendMessage::dispatch($message);
     }
     public function send_message_test(Request $request)
     {

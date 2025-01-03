@@ -7,8 +7,6 @@ const props = defineProps({
     selectConversation: Function,
     activeIdConversation: Number,
 })
-console.log(props.conversations);
-
 const model = defineModel('selectConversation')
 const emit = defineEmits(['update.selectConversation'])
 const activeConversations = ref(null)
@@ -27,9 +25,9 @@ onMounted(() => {
             <p class="text-2xl pl-2 pt-2 font-mono">Conversas</p>
             <Divider />
             <div class="grid grid-flow-row gap-1">
-                <Button type="button" label="Abertas" :badge="props.conversations.open.items.length" @click="updateConversations('open')" :variant="activeButton == 'open' ? 'outlined' : 'secondary'" />
-                <Button type="button" label="Fechadas" :badge="props.conversations.closed.items.length"  @click="updateConversations('closed')" :variant="activeButton == 'closed' ? 'outlined' : 'secondary'" />
-                <Button type="button" label="Não atendidas" :badge="props.conversations.nobody.items.length"  @click="updateConversations('nobody')" :variant="activeButton == 'nobody' ? 'outlined' : 'secondary'" />
+                <Button type="button" label="Abertas" @click="updateConversations('open')" :variant="activeButton == 'open' ? 'outlined' : 'secondary'" />
+                <Button type="button" label="Fechadas"  @click="updateConversations('closed')" :variant="activeButton == 'closed' ? 'outlined' : 'secondary'" />
+                <Button type="button" label="Não atendidas" @click="updateConversations('nobody')" :variant="activeButton == 'nobody' ? 'outlined' : 'secondary'" />
             </div>
         </div>
         <div class="grid grid-flow-row">

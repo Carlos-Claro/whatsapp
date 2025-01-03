@@ -8,6 +8,8 @@ const props = defineProps({
         default: 0,
     },
 })
+const model = defineModel('updateConversation')
+const emit = defineEmits(['update:updateConversation'])
 const menu = ref()
 const itemsMenu = ref([
     {
@@ -39,6 +41,7 @@ const submit = () => {
         form.post(route('send_message'), {
             onSuccess: () => {
                 form.message = ''
+                emit('update:updateConversation')
             },
             onError: () => {
                 console.log('erro')

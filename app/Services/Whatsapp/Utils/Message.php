@@ -1,34 +1,22 @@
 <?php
 namespace App\Services\Whatsapp\Utils;
 
-use App\Http\Resources\ConversationResumeCollection;
 use App\Models\Contacts;
 use App\Models\Conversations;
 use App\Models\Messages;
 use App\Models\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
+
 trait Message{
-    public function send(Request $request, $message, Contacts $contact, ?Conversations $conversation): void {
-        $response = $this->whatsapp->sendTextMessage($message['wa_id'], $message['body'], true);
-        $decoded = $response->decodedBody();
-        $message['wam_id'] = $decoded['messages'][0]['id'];
-        $message['status'] = 'delivered';
-        $data = [
-            'type' => 'user',
-            'message' => $message,
-            'contact' => $contact,
-            'user' => $request->user(),
-        ];
-        if ( isset($conversation) ){
-            $data['conversation'] = $conversation;
-        }
-        $this->saveMessage($data);
+
+    public function __construct(){
+
     }
+
     public function saveMessage($data){
-        if( ! isset($data['conversation']) || ! $data['conversation'] ){
+        if( ! isset($data['conversation']) ){
             $conversation = $this->activeConversation($data['contact']);
             if ( ! isset($conversation) || ! $conversation ){
                 $conversation = Conversations::create(['status' => 0]);
@@ -50,6 +38,7 @@ trait Message{
             $message->memberable()->associate($data['contact']);
             $message->save();
         }
+        return $message;
     }
     public function existsMessageInDatabase ($id){
         return Messages::where('wam_id', $id)

@@ -21,7 +21,7 @@ const { execute, isFetching, data, onFetchError, onFetchResponse, isFinished} = 
     }).get().json()
 onFetchResponse((e) => {
     console.log(e)
-    toast.add({ severity: 'success', summary: 'Status de fetch: ' + e.status, 'detail' : 'Raças retornadas com sucesso.', life: 3000})
+    toast.add({ severity: 'success', summary: 'Status de fetch: ' + e.status, 'detail' : 'Mensagens retornadas com sucesso.', life: 3000})
 })
 onFetchError((e) => {
     console.log(e)
@@ -63,6 +63,9 @@ const logTeste = (e) => {
     console.log(e)
 
 }
+const updateConversation = () => {
+    execute()
+}
 </script>
 <template>
     <Toast />
@@ -87,7 +90,10 @@ const logTeste = (e) => {
                 </template>
             </div>
         </div>
-        <Send :conversation="props.conversation" />
+        <Send
+            :conversation="props.conversation"
+            @update:update-conversation="updateConversation"
+            />
     </template>
     <template v-else>
         <div class="bg-teal-900 p-4 w-full row-span-1 self-start">
