@@ -9,6 +9,9 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('messages.{id}', function (User $user, int $id) {
-    // return true;
-    return $user->id === Messages::find($id)->memberable->id;
+    return true;
+    // return $user->id === Messages::find($id)->memberable->id;
+});
+Broadcast::channel('conversation.{id}', function (User $user, int $id) {
+    return true;
 });

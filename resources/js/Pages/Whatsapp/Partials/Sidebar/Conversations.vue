@@ -20,38 +20,39 @@ onMounted(() => {
 })
 </script>
 <template>
-    <div class="w-full bg-teal-700">
-        <div class="w-full bg-teal-800 pb-1">
-            <p class="text-2xl pl-2 pt-2 font-mono">Conversas</p>
-            <Divider />
-            <div class="grid grid-flow-row gap-1">
-                <Button type="button" label="Abertas" @click="updateConversations('open')" :variant="activeButton == 'open' ? 'outlined' : 'secondary'" />
-                <Button type="button" label="Fechadas"  @click="updateConversations('closed')" :variant="activeButton == 'closed' ? 'outlined' : 'secondary'" />
-                <Button type="button" label="Não atendidas" @click="updateConversations('nobody')" :variant="activeButton == 'nobody' ? 'outlined' : 'secondary'" />
-            </div>
+    <div class="w-full bg-[#111b21] relative">
+        <div class="w-full pb-1">
+            <p class="text-2xl pl-2 pt-2 mt-2 font-extrabold">Conversas</p>
         </div>
+        <Divider />
         <div class="grid grid-flow-row">
             <div
                 v-if="activeConversations"
                 v-for="item in activeConversations.items"
-                :class="`p-2 shadow-inner shadow-lg w-full border border-slate-500 ${item.id == props.activeIdConversation ? 'bg-slate-200' : 'bg-slate-300'}`"
+                class=" w-full border-b border-[#2a3942] "
                 :ref="item.id"
                  >
-                <div class="grid grid-flow-col grid-cols-6" @click="emit('update:selectConversation', item)">
-                    <span class="pi pi-user col-span-1" style="font-size: 2.5rem;"></span>
+            <div :class="`grid grid-flow-col grid-cols-6 p-4  ${item.id == props.activeIdConversation ? 'bg-[#2a3942]' : 'bg-[#111b21]'}`" @click="emit('update:selectConversation', item)">
+                    <span class="pi pi-user col-span-1" style="font-size: 1.5rem;"></span>
                     <div class="text-center  sm:text-left col-span-4">
-                        <p class="text-sm text-black font-semibold">
+                        <p class="text-xs text-white font-semibold">
                             {{ item.contact.name }}
                         </p>
-                        <p class="text-sm text-gray-500">
+                        <p class="text-[11px] text-gray-300">
                             {{ item.lastMessage.body.substring(0, 12) }} ...
                         </p>
                     </div>
                     <div class="w-fit col-span-1 text-right">
-                        <Badge value="2" severity="contrast" class="mr-1" size="large"></Badge>
+                        <Badge value="2" severity="contrast" class="mr-1" size="small"></Badge>
                     </div>
                 </div>
+
             </div>
         </div>
+        <div class="grid grid-flow-row gap-1 absolute inset-x-0 bottom-0">
+                <Button type="button" label="Abertas" @click="updateConversations('open')" :variant="activeButton == 'open' ? 'outlined' : 'secondary'" />
+                <Button type="button" label="Fechadas"  @click="updateConversations('closed')" :variant="activeButton == 'closed' ? 'outlined' : 'secondary'" />
+                <Button type="button" label="Não atendidas" @click="updateConversations('nobody')" :variant="activeButton == 'nobody' ? 'outlined' : 'secondary'" />
+            </div>
     </div>
 </template>

@@ -1,24 +1,29 @@
 <script setup>
+import { onMounted, ref } from 'vue';
+
 
 const props = defineProps({
     item: Object,
 })
 // console.log(window.Echo);
-Echo.private(`messages.${props.item.id}`)
+window.Echo.private(`messages.${props.item.id}`)
     .listen('WhatsappDelivered', (e) => {
         console.log(e)
+    })
+    .notification((notification) => {
+        console.log(notification)
     })
 
 </script>
 <template>
     <div :class="`box-conversa ${(props.item.memberable_type).indexOf('Contacts') >= 0 ? 'place-items-start' : 'place-items-end'} `" :ref="props.item.id">
-        <div :class="`flex  flex-col text-right text-black h-auto w-fit px-4 py-2 my-2 mx-1 ${(props.item.memberable_type).indexOf('Contacts') >= 0 ? 'bg-green-300' : 'bg-green-200'}`"   >
+        <div :class="`flex flex-col rounded text-right text-white h-auto w-1/2 px-4 py-2 my-2 mx-1 ${(props.item.memberable_type).indexOf('Contacts') >= 0 ? 'bg-[#202c33]' : 'bg-[#005c4b]'}`"   >
             <p :class="`font-base ${(props.item.memberable_type).indexOf('Contacts') >= 0 ? 'text-left' : 'text-right'}`">
                 {{ props.item.body }}
             </p>
-            <div :class="`flex flex-row gap-2 ${(props.item.memberable_type).indexOf('Contacts') >= 0 ? 'place-content-start' : 'place-content-end'}`">
-                <p class="text-gray-600 font-xs ">{{ props.item.created_at }}</p>
-                <p class="text-pink-700 font-xs ">{{ props.item.status }}</p>
+            <div :class="`flex flex-row gap-2 place-content-end`">
+                <p class="text-gray-300 text-[12px] "><small>{{ props.item.created_at }}</small></p>
+                <p class="text-pink-200 text-[12px] ">{{ props.item.status }}</p>
             </div>
         </div>
     </div>

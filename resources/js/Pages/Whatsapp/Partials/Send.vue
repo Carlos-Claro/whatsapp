@@ -62,36 +62,31 @@ watchEffect(() => {
 })
 </script>
 <template>
-    <div class=" bg-teal-800 w-full row-span-1 h-full self-end">
+    <div class=" bg-[#202c33] py-2 w-full row-span-1 h-full self-end">
         <div class="flex gap-1">
-            <Textarea
-                placeholder="Digite sua mensagem"
-                type="text"
-                class="grow mx-2 my-1"
-                fluid
-                v-model="form.message"
-                v-on:keydown="inputChange"
-                />
             <Button
                 type="button"
-                icon="pi pi-send"
-                @click="submit"
-                severity="success"
-                class=" my-1"
-                />
-            <Button
-                type="button"
-                icon="pi pi-paperclip"
+                icon="pi pi-plus"
                 @click="toogle"
                 aria-haspopup="true"
                 aria-controls="overlay_menu"
-                class="mr-3 my-1"
+                class="ml-3 my-1"
+                variant="text"
                 />
             <Menu
                 ref="menu"
                 id="overlay_menu"
                 :model="itemsMenu"
                 :popup="true"
+                />
+            <Textarea
+                placeholder="Digite sua mensagem"
+                type="text"
+                class="grow mx-2 my-1 h-12"
+                fluid
+                v-model="form.message"
+                v-on:keydown="inputChange"
+                variant="outlined"
                 />
         </div>
     </div>

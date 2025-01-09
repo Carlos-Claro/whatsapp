@@ -23,6 +23,12 @@ class Messages extends Model
         'updated_at',
 
     ];
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime:d/m/Y H:i:s',
+        ];
+    }
     public function conversation(): HasOne
     {
         return $this->hasOne(Conversations::class, 'id', 'conversation_id');
