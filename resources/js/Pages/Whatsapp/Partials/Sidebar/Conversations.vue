@@ -7,6 +7,8 @@ const props = defineProps({
     selectConversation: Function,
     activeIdConversation: Number,
 })
+console.log(props.conversations)
+
 const model = defineModel('selectConversation')
 const emit = defineEmits(['update.selectConversation'])
 const activeConversations = ref(null)
@@ -42,8 +44,8 @@ onMounted(() => {
                             {{ item.lastMessage.body.substring(0, 12) }} ...
                         </p>
                     </div>
-                    <div class="w-fit col-span-1 text-right">
-                        <Badge value="2" severity="contrast" class="mr-1" size="small"></Badge>
+                    <div class="w-fit col-span-1 text-right" v-if="item.unReadMessages">
+                        <Badge  :value="item.unReadMessages" severity="contrast" class="mr-1" size="small"></Badge>
                     </div>
                 </div>
 

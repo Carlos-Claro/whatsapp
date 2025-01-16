@@ -27,7 +27,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/conversations', [WhatsappController::class, 'conversations'])->name('conversations');
     Route::get('/send_message_test', [WhatsappController::class, 'send_message_test'])->name('whatsapp.send_message_test');
     Route::post('/send_message', [WhatsappController::class, 'send_message'])->name('send_message');
+    Route::post('/mark_message_as_read', [WhatsappController::class, 'mark_message_as_read'])->name('mark_message_as_read');
     Route::get('/get_messages', [WhatsappController::class, 'get_messages'])->name('get_messages');
+    Route::post('/close_conversation', [WhatsappController::class, 'close_conversation'])->name('close_conversation');
 });
 
 Route::get('/webhook', [WhatsappController::class, 'set'])->name('webhook.set');

@@ -17,8 +17,8 @@ class Messages extends Model
         'caption',
         'data',
         'status',
-        'contact_id',
         'conversation_id',
+        'related_id',
         'created_at',
         'updated_at',
 
@@ -28,6 +28,10 @@ class Messages extends Model
         return [
             'created_at' => 'datetime:d/m/Y H:i:s',
         ];
+    }
+    public function related(): HasOne
+    {
+        return $this->hasOne(Messages::class, 'id', 'related_id');
     }
     public function conversation(): HasOne
     {

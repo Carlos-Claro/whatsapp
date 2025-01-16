@@ -12,9 +12,8 @@ class Conversations extends Model
     protected $fillable = [
         "contact_id",
         "department_id",
-        "status_id",
-        "hate",
-        "hate_annotation",
+        "status",
+        "rate_annotation",
     ];
 
     protected function casts(): array {
@@ -29,8 +28,14 @@ class Conversations extends Model
     public function contact(): HasOne {
         return $this->hasOne(Conversation_has::class, 'conversation_id', 'id')->whereHasMorph('memberable', Contacts::class)->with('contact');
     }
+    public function user(): HasOne {
+        return $this->hasOne(Conversation_has::class, 'conversation_id', 'id')->whereHasMorph('memberable', User::class);
+    }
     public function messages(): HasMany{
         return $this->hasMany(Messages::class, 'conversation_id', 'id');
+    }
+    public function unReadMessages(): HasMany{
+        return $this->hasMany(Messages::class, 'conversation_id', 'id')->whereHasMorph('memberable', Contacts::class)->where('status', 'delivered');
     }
     public function lastMessage(): HasOne {
         return $this->hasOne(Messages::class, 'conversation_id', 'id')->latestOfMany();

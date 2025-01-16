@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\WhatsappButtonProcess;
 use App\Models\Contacts;
 use App\Models\Messages;
 use App\Services\Whatsapp\Utils\Contact as UtilsContact;
@@ -15,6 +16,7 @@ use Illuminate\Support\Str;
 use Netflie\WhatsAppCloudApi\Message\ButtonReply\Button;
 use Netflie\WhatsAppCloudApi\WebHook;
 use Netflie\WhatsAppCloudApi\WebHook\Notification;
+use Netflie\WhatsAppCloudApi\WebHook\Notification\Button as NotificationButton;
 use Netflie\WhatsAppCloudApi\WebHook\Notification\Contact;
 use Netflie\WhatsAppCloudApi\WebHook\Notification\Interactive;
 use Netflie\WhatsAppCloudApi\WebHook\Notification\Location;
@@ -48,12 +50,10 @@ class WhatsappWebhook extends Controller
     {
         $this->payload = json_decode(file_get_contents('php://input'), true);
         $this->event = $this->webhook->read($this->payload);
+        Storage::disk('public')->append('events.log', '-------------------payload-----');
+        Storage::disk('public')->append('events.log', print_r($this->payload, true));
+        Storage::disk('public')->append('events.log', '-------------------event-----');
         Storage::disk('public')->append('events.log', print_r($this->event, true));
-        Storage::disk('public')->append('events.log', '------------------------------');
-        Log::debug($this->event->message());
-        Log::debug($this->event->customer()->id());
-        Log::debug($this->event->id());
-        Log::debug($this->event->customer()->name());
         $messageExists = $this->existsMessageInDatabase($this->event->id());
         if ( $messageExists->isEmpty() ){
             $contact = $this->existsContact([
@@ -117,7 +117,13 @@ class WhatsappWebhook extends Controller
 
             //Button Type Notification
             if ($this->event instanceof Button) {
+                WhatsappButtonProcess::dispatch($this->event);
                 Log::info('Button: ', [$this->event]);
+            }
+
+            if ($this->event instanceof NotificationButton) {
+                WhatsappButtonProcess::dispatch($this->event);
+                Log::info('ButtonN: ', [$this->event]);
             }
 
             //System Type Notification
@@ -139,7 +145,7 @@ class WhatsappWebhook extends Controller
             if ($this->event instanceof Unknown) {
                 Log::info('Unknown: ', [$this->event]);
             }
-            $this->whatsapp->markMessageAsRead($this->event->id());
+
         }
         //StatusNotification Type Notification
         if ($this->event instanceof StatusNotification) {

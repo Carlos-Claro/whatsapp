@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\WhatsappCloseConversation;
 use App\Events\WhatsappSendMessage;
 use App\Models\Contacts;
 use App\Models\Conversations;
+use App\Models\Messages;
 use App\Services\Whatsapp\Utils\Contact;
 use App\Services\Whatsapp\Utils\Message;
 use Illuminate\Database\Eloquent\Casts\Json;
@@ -79,5 +81,14 @@ class WhatsappController extends Controller
     public function get_messages(Request $request) {
         $data = $this->getMessages($request['id']);
         return $data->toJson();
+    }
+    public function mark_message_as_read(Request $request) {
+        $data = $this->markMessageAsRead($request['id']);
+        // return $data->toJson();
+    }
+    public function close_conversation(Request $request) {
+        $conversation = Conversations::where('id', $request['id'])->with(['members', 'contact', 'unReadMessages'])->first();
+        // dd($conversation);
+        WhatsappCloseConversation::dispatch($conversation);
     }
 }

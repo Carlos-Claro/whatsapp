@@ -1,33 +1,45 @@
 <?php
 namespace App\Services\Whatsapp\Utils;
 
+
+use App\Events\WhatsappWelcomeMessage;
 use App\Models\Contacts;
 use App\Models\Conversations;
 use App\Models\Messages;
 use App\Models\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Netflie\WhatsAppCloudApi\WhatsAppCloudApi;
 
 
 trait Message{
-
+    private WhatsAppCloudApi $whatsapp;
     public function __construct(){
-
+        $this->whatsapp = new WhatsAppCloudApi([
+            'from_phone_number_id' => env('WHATSAPP_FROM_PHONE_NUMBER_ID'),
+            'access_token' => env('WHATSAPP_TOKEN'),
+        ]);
     }
 
     public function saveMessage($data){
+        $welcome = false;
         if( ! isset($data['conversation']) ){
             $conversation = $this->activeConversation($data['contact']);
-            if ( ! isset($conversation) || ! $conversation ){
+            if ( ! isset($conversation) ){
                 $conversation = Conversations::create(['status' => 0]);
                 $data['contact']->conversations()->create(['conversation_id' => $conversation->id,'status' => 1]);
                 if ( isset($data['user']) ){
                     $data['user']->conversations()->create(['conversation_id' => $conversation->id, 'status' => 1]);
                 }
+                $welcome = true;
             }
         }
         else{
             $conversation = $data['conversation'];
+        }
+        if ( isset($data['associate_conversation']) && $data['associate_conversation'] ){
+            $data['user']->conversations()->create(['conversation_id' => $conversation->id, 'status' => 1]);
+            $data['user']->save();
         }
         $data['message']['conversation_id'] = $conversation->id;
         $message = Messages::create($data['message']);
@@ -37,6 +49,10 @@ trait Message{
         } else {
             $message->memberable()->associate($data['contact']);
             $message->save();
+        }
+        if ( $welcome ){
+            $item = ['message' => $message, 'conversation' => $conversation, 'data' => $data];
+            WhatsappWelcomeMessage::dispatch($item);
         }
         return $message;
     }
@@ -48,12 +64,9 @@ trait Message{
     }
     public function getResume(User $user): Collection {
         $activeConversations = $this->conversationsUser($user, 0);
-        $closedConversations = $this->conversationsUser($user, 1);
+        $closedConversations = $this->conversationsNoUser(1);
         $nobodyConversations = $this->conversationsNobody(0);
         return collect([
-            'all' => [
-                'count' => $activeConversations->count() + $closedConversations->count(),
-            ],
             'open' => [
                 'count' => $activeConversations->count(),
                 'items' => $this->toArray($activeConversations),
@@ -73,9 +86,10 @@ trait Message{
         foreach( $conversations as $conversation ){
             $return[] = [
                 'id' => $conversation->id,
-                'hate' => $conversation->hate,
+                'status' => $conversation->status,
                 'lastMessage' => $conversation->lastMessage,
                 'contact' => $conversation->contact->contact,
+                'unReadMessages' => $conversation->unReadMessages->count(),
             ];
         }
         return collect($return);
@@ -87,7 +101,13 @@ trait Message{
                 return $query->where('memberable_id', $user->id);
             });
         })->where('conversations.status', $status);
-        $results = $conversation->with(['members', 'contact'])->get();
+        $results = $conversation->with(['members', 'contact', 'unReadMessages'])->get();
+        return $results;
+    }
+    public function conversationsNoUser($status = 0)
+    {
+        $conversation =  Conversations::where('conversations.status', $status);
+        $results = $conversation->with(['members', 'contact', 'unReadMessages'])->get();
         return $results;
     }
     public function conversationsNobody($status = 0)
@@ -95,7 +115,7 @@ trait Message{
         $conversation =  Conversations::whereDoesntHave('members', function(Builder $query) {
             return $query->whereHasMorph('memberable', User::class);
         })->where('conversations.status', $status);
-        $results = $conversation->with(['members', 'contact'])->get();
+        $results = $conversation->with(['members', 'contact', 'unReadMessages'])->get();
 
         return $results;
     }
@@ -111,5 +131,22 @@ trait Message{
 
     public function getMessages(int $id) {
         return Messages::where('conversation_id', $id)->get();
+    }
+    public function markMessageAsRead(int $id){
+        $message = Messages::where('id', $id)->first();
+        if ( isset($message) ){
+            $this->whatsapp->markMessageAsRead($message->wam_id);
+            $message->status = 'read';
+            $message->save();
+        }
+        return $message;
+    }
+    public function closeConversation(int $id){
+        $conversation = Conversations::where('id', $id)->first();
+        if ( isset($conversation) ){
+            $conversation->status = 1;
+            $conversation->save();
+        }
+        return $conversation;
     }
 }

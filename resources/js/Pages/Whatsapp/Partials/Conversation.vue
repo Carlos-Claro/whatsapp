@@ -1,9 +1,10 @@
 <script setup>
 import { useFetch, useScroll } from '@vueuse/core';
-import { Button, InputText, Menu, Toast, useToast } from 'primevue';
+import { Button, ConfirmDialog, InputText, Menu, Toast, useConfirm, useToast } from 'primevue';
 import { computed, onMounted, onUpdated, reactive, ref, toRefs, watch, watchEffect } from 'vue';
 import Message from './Message.vue';
 import Send from './Send.vue';
+import MenuTop from './Conversation/MenuTop.vue';
 
 
 const props = defineProps({
@@ -56,13 +57,13 @@ const updateConversation = () => {
 const conversationElement = ref(null)
 const { x, y, isScrolling, arrivedState, directions } = useScroll(conversationElement, { smooth: true })
 watch(isFinished, (value) => {
-    console.log(conversationElement)
     y.value = Number.parseFloat(conversationElement.value.scrollHeight)
-
 })
+console.log(props.conversation)
 
 </script>
 <template>
+
     <Toast />
     <template v-if="props.conversation">
         <div class="bg-[#202c33] p-4 w-full row-span-1 self-start">
@@ -72,6 +73,9 @@ watch(isFinished, (value) => {
                     <p class="text-lg text-left text-white font-sans">
                         {{  props.conversation.contact.name  }}
                     </p>
+                </div>
+                <div class="">
+                    <MenuTop :id="props.conversation.id" />
                 </div>
             </div>
         </div>
@@ -86,6 +90,7 @@ watch(isFinished, (value) => {
             </div>
         </div>
         <Send
+            v-if="props.conversation.status == 0"
             :conversation="props.conversation"
             @update:update-conversation="updateConversation"
             />
