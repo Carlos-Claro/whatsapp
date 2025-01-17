@@ -130,7 +130,7 @@ trait Message{
     }
 
     public function getMessages(int $id) {
-        return Messages::where('conversation_id', $id)->get();
+        return Messages::where('conversation_id', $id)->with(['related'])->get();
     }
     public function markMessageAsRead(int $id){
         $message = Messages::where('id', $id)->first();
