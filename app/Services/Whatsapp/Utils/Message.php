@@ -2,6 +2,7 @@
 namespace App\Services\Whatsapp\Utils;
 
 
+use App\Events\WhatsappNewMessage;
 use App\Events\WhatsappWelcomeMessage;
 use App\Models\Contacts;
 use App\Models\Conversations;
@@ -54,6 +55,7 @@ trait Message{
             $item = ['message' => $message, 'conversation' => $conversation, 'data' => $data];
             WhatsappWelcomeMessage::dispatch($item);
         }
+        WhatsappNewMessage::dispatch($conversation);
         return $message;
     }
     public function existsMessageInDatabase ($id){

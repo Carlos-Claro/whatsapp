@@ -48,6 +48,7 @@ watchEffect(() => {
 onMounted(() => {
     if ( props.conversation ){
         url.value = route('get_messages', {'id': props.conversation.id})
+        assigned()
         execute()
     }
 })
@@ -59,7 +60,27 @@ const { x, y, isScrolling, arrivedState, directions } = useScroll(conversationEl
 watch(isFinished, (value) => {
     y.value = Number.parseFloat(conversationElement.value.scrollHeight)
 })
-console.log(props.conversation)
+watchEffect(() => {
+    if (props.conversation){
+
+        assigned()
+    }
+})
+const assigned = () => {
+    console.log('assigned')
+    console.log(props.conversation.id)
+
+
+    window.Echo.channel(`conversation.${props.conversation.id}`)
+        .listen('WhatsappNewMessage', (e) => {
+            console.log('e', e);
+            if ( props.conversation.id == e.conversation.id ){
+                updateConversation()
+            }
+        })
+
+}
+
 
 </script>
 <template>

@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Conversations;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -10,18 +11,19 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Messages;
 
-class WhatsappDelivered implements ShouldBroadcastNow
+class WhatsappNewMessage implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(public Messages $message)
+    public function __construct(public Conversations $conversation)
     {
+        // dd($conversation);
     }
+
     /**
      * Get the channels the event should broadcast on.
      *
@@ -29,6 +31,8 @@ class WhatsappDelivered implements ShouldBroadcastNow
      */
     public function broadcastOn(): array
     {
-        return [new Channel('messages.'.$this->message->id)];
+        return [
+            new Channel('conversation.'.$this->conversation->id),
+        ];
     }
 }

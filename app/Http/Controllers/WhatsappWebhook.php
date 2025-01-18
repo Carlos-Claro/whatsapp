@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\WhatsappButtonProcess;
+use App\Events\WhatsappDelivered;
 use App\Models\Contacts;
 use App\Models\Messages;
 use App\Services\Whatsapp\Utils\Contact as UtilsContact;
@@ -155,6 +156,7 @@ class WhatsappWebhook extends Controller
                 $wam->status = $status;
                 $wam->save();
             }
+            WhatsappDelivered::dispatch($wam);
         }
     }
         private static function compileMedia(string $mediaId, string $mimeType): string

@@ -1,8 +1,12 @@
 <?php
 
+use App\Events\WhatsappDelivered;
+use App\Events\WhatsappNewMessage;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WhatsappController;
 use App\Http\Controllers\WhatsappWebhook;
+use App\Models\Conversations;
+use App\Models\Messages;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -31,9 +35,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/get_messages', [WhatsappController::class, 'get_messages'])->name('get_messages');
     Route::post('/close_conversation', [WhatsappController::class, 'close_conversation'])->name('close_conversation');
 });
+Route::get('/test', function(){
+    $message = Conversations::find(31);
+    broadcast(new WhatsappNewMessage($message))->via('reverb');
+    return 'ok';
+});
 
 Route::get('/webhook', [WhatsappController::class, 'set'])->name('webhook.set');
 // Route::post('/send_message', [WhatsappController::class, 'send_message'])->name('whatsapp.send_message');
 Route::post('/webhook', WhatsappWebhook::class);
+
 
 require __DIR__.'/auth.php';

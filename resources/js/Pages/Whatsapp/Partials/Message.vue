@@ -11,13 +11,13 @@ const props = defineProps({
     item: Object,
 })
 // console.log(window.Echo);
-// window.Echo.private(`messages.${props.item.id}`)
-//     .listen('WhatsappDelivered', (e) => {
-//         console.log(e)
-//     })
-//     .notification((notification) => {
-//         console.log(notification)
-//     })
+window.Echo.channel(`messages.${props.item.id}`)
+    .listen('WhatsappDelivered', (e) => {
+        if ( props.item.id == e.message.id ){
+            form.status = e.message.status
+        }
+    })
+
 onMounted(() => {
     form.status = props.item.status
     if ( (props.item.memberable_type) && (props.item.memberable_type).indexOf('Contacts') >= 0 && props.item.status == 'delivered' ){
