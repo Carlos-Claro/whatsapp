@@ -36,7 +36,19 @@ onMounted(() => {
 const messageSide = computed(() => {
     return (props.item.memberable_type) && (props.item.memberable_type).indexOf('Contacts') >= 0 ? true : false
 })
-// console.log(props.item);
+const primaryType = (type) => {
+    if ( type == 'text' ||
+         type == 'welcome' ||
+         type == 'rate' ){
+        return 'text'
+    }
+    return type
+
+}
+const messageType = computed(() => {
+    return [primaryType(props.item.type), props.item.type]
+})
+console.log(props.item);
 
 </script>
 <template>
@@ -47,9 +59,34 @@ const messageSide = computed(() => {
                 v-if="props.item.related">
                 {{ props.item.related.body }}
             </div>
-            <p :class="`font-base ${messageSide ? 'text-left' : 'text-right'}`">
+            <p
+                v-if="messageType[0] == 'text'"
+                :class="`font-base ${messageSide ? 'text-left' : 'text-right'}`">
                 {{ props.item.body }}
             </p>
+            <div
+                v-if="messageType[0] == 'image'"
+                >
+                <img
+                    :src="`${props.item.image_address[1]}`"
+                    v-if="props.item.image_address[0].indexOf('image') >= 0"
+                    />
+                <video
+                    v-if="props.item.image_address[0].indexOf('video') >= 0"
+                    controls
+                    >
+                    <source :src="`${props.item.image_address[1]}`" :type="props.item.image_address[0]">
+                </video>
+                <audio
+                    v-if="props.item.image_address[0].indexOf('audio') >= 0"
+                    controls>
+                    <source :src="`${props.item.image_address[1]}`" :type="props.item.image_address[0]">
+                </audio>
+                <p
+                    :class="`font-base ${messageSide ? 'text-left' : 'text-right'}`">
+                    {{ props.item.caption }}
+                </p>
+            </div>
             <div :class="`flex flex-row gap-2 place-content-end`">
                 <p class="text-gray-300 text-[12px] "><small>{{ props.item.created_at }}</small></p>
                 <p class="text-pink-200 text-[12px] " v-if="(props.item.memberable_type) && (props.item.memberable_type).indexOf('Contacts') < 0 ">{{ form.status }}</p>

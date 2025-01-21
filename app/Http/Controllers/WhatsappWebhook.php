@@ -159,11 +159,13 @@ class WhatsappWebhook extends Controller
             WhatsappDelivered::dispatch($wam);
         }
     }
-        private static function compileMedia(string $mediaId, string $mimeType): string
+        private function compileMedia(string $mediaId, string $mimeType): string
     {
+        // dd($this->whatsapp);
         $download_resource = $this->whatsapp->downloadMedia($mediaId);
         $mimeType = explode(';', $mimeType)[0];
-        $fileName = Str::uuid()->toString().'.'.$mimeType;
+        $type = explode('/',$mimeType);
+        $fileName = Str::uuid()->toString().'.'.$type[1];
         Storage::disk('public')->put($fileName, $download_resource->body());
         return $fileName;
     }
