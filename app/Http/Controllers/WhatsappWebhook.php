@@ -63,7 +63,28 @@ class WhatsappWebhook extends Controller
                 'phone_id' => (int) $this->event->customer()->phoneNumber(),
             ]);
             if ($this->event instanceof Contact) {
-                Log::info('Contacto: ', [$this->event]);
+                $message = $this->saveMessage([
+                    'message' => [
+                        "wam_id" => $this->event->id(),
+                        "name" => $this->event->customer()->name(),
+                        "wa_id" => $this->event->customer()->phoneNumber(),
+                        "type" => 'contact',
+                        "created_at" => $this->event->receivedAt(),
+                        "body" => '',
+                        "caption" => null,
+                        "data" => collect([
+                            "name" => $this->event->formattedName(),
+                            "phones" => $this->event->phones(),
+                            "company" => $this->event->companyName(),
+                            "emails" => $this->event->emails(),
+                            "birthday" => $this->event->birthday(),
+
+                        ])->toJson(),
+                        "status" => 'delivered',
+                    ],
+                    'contact' => $contact,
+                    'type' => 'contact',
+                ]);
             }
 
             //Text Type Notification
@@ -108,23 +129,43 @@ class WhatsappWebhook extends Controller
 
             //Location Type Notification
             if ($this->event instanceof Location) {
-                Log::info('Location: ', [$this->event]);
+                $message = $this->saveMessage([
+                    'message' => [
+                        "wam_id" => $this->event->id(),
+                        "name" => $this->event->customer()->name(),
+                        "wa_id" => $this->event->customer()->phoneNumber(),
+                        "type" => 'location',
+                        "created_at" => $this->event->receivedAt(),
+                        "body" => '',
+                        "caption" => null,
+                        "data" => collect([
+                            "latitude" => $this->event->latitude(),
+                            "longitude" => $this->event->longitude(),
+                            "address" => $this->event->address(),
+                            "name" => $this->event->name(),
+                        ])->toJson(),
+                        "status" => 'delivered',
+                    ],
+                    'contact' => $contact,
+                    'type' => 'contact',
+                ]);
             }
 
             //Reaction Type Notification
             if ($this->event instanceof Reaction) {
+
                 Log::info('Reaction: ', [$this->event]);
             }
 
             //Button Type Notification
             if ($this->event instanceof Button) {
                 WhatsappButtonProcess::dispatch($this->event);
-                Log::info('Button: ', [$this->event]);
+                // Log::info('Button: ', [$this->event]);
             }
 
             if ($this->event instanceof NotificationButton) {
                 WhatsappButtonProcess::dispatch($this->event);
-                Log::info('ButtonN: ', [$this->event]);
+                // Log::info('ButtonN: ', [$this->event]);
             }
 
             //System Type Notification

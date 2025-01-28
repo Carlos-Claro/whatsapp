@@ -92,7 +92,7 @@ const assigned = () => {
                 <span class="pi pi-user w-16" style="font-size: 2.5rem;"></span>
                 <div class="text-center grow">
                     <p class="text-lg text-left text-white font-sans">
-                        {{  props.conversation.contact.name  }}
+                        {{ props.conversation.id }} - {{  props.conversation.contact.name  }}
                     </p>
                 </div>
                 <div class="">

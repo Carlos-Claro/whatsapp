@@ -88,7 +88,10 @@ class WhatsappController extends Controller
     }
     public function close_conversation(Request $request) {
         $conversation = Conversations::where('id', $request['id'])->with(['members', 'contact', 'unReadMessages'])->first();
-        // dd($conversation);
-        WhatsappCloseConversation::dispatch($conversation);
+        $data = [
+            'conversation' => $conversation,
+            'pesquisa' => $request['pesquisa'],
+        ];
+        WhatsappCloseConversation::dispatch($data);
     }
 }

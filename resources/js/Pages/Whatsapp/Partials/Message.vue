@@ -39,6 +39,7 @@ const messageSide = computed(() => {
 const primaryType = (type) => {
     if ( type == 'text' ||
          type == 'welcome' ||
+         type == 'finish' ||
          type == 'rate' ){
         return 'text'
     }
@@ -48,7 +49,11 @@ const primaryType = (type) => {
 const messageType = computed(() => {
     return [primaryType(props.item.type), props.item.type]
 })
-console.log(props.item);
+const parseJson = (key) => {
+    let data = JSON.parse(props.item.data)
+    return data[key]
+}
+console.log((JSON.parse(props.item.data)));
 
 </script>
 <template>
@@ -64,6 +69,30 @@ console.log(props.item);
                 :class="`font-base ${messageSide ? 'text-left' : 'text-right'}`">
                 {{ props.item.body }}
             </p>
+            <div
+                v-if="messageType[0] == 'contact'"
+                :class="`flex flex-col flex flex-col rounded text-right text-white h-auto w-5/6 px-4 py-2 my-2 mx-1 border-l-4 ${messageSide ? 'bg-[#1d282f] border-l-[#e26ab6]' : 'bg-[#025144] border-l-[#a5b337]'} `">
+                <p class="bold text-left">Contato: </p>
+                <p>
+                    {{ parseJson('name') }}
+                </p>
+                <p>
+                    {{ parseJson('phones')[0].phone }}
+                </p>
+            </div>
+
+            <div
+                v-if="messageType[0] == 'location'"
+                :class="`flex flex-col flex flex-col rounded text-right text-white h-auto w-5/6 px-4 py-2 my-2 mx-1 border-l-4 ${messageSide ? 'bg-[#1d282f] border-l-[#e26ab6]' : 'bg-[#025144] border-l-[#a5b337]'} `">
+                <p class="bold text-left">Localização: </p>
+                <p>
+                    {{ parseJson('name') }}
+                </p>
+                <p>
+                    {{ parseJson('latitude') }}, {{ parseJson('longitude') }}
+                </p>
+            </div>
+
             <div
                 v-if="messageType[0] == 'image'"
                 >

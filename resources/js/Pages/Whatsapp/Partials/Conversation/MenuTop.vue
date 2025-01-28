@@ -11,6 +11,7 @@ const props = defineProps({
 })
 const form = useForm({
     id: props.id,
+    pesquisa: false,
 })
 const menu = ref()
 const toast = useToast()
@@ -35,12 +36,36 @@ const itemsMenu = ref([
                 },
             },
             {
-                label: 'Finalizar conversa',
+                label: 'Finalizar conversa com pesquisa de satisfação',
+                icon: 'pi pi-times',
+                command: () => {
+                    confirm.require({
+                        message: 'Deseja finalizar a conversa e enviar a pesquisa de satisfação?',
+                        accept: () => {
+                            form.pesquisa = true
+                            form.post(route('close_conversation'), {
+                                onSuccess: () => {
+                                    toast.add({ severity: 'success', summary: 'Finalizando conversa', detail: 'Conversa finalizada com sucesso.', life: 3000})
+                                },
+                                onError: () => {
+                                    toast.add({ severity: 'danger', summary: 'Finalizando conversa', detail: 'Erro ao finalizar conversa.', life: 3000})
+                                },
+                            })
+                        },
+                        reject: () => {
+                            toast.add({ severity: 'info', summary: 'Finalizando conversa', detail: 'Cancelado.', life: 3000})
+                        }
+                    })
+                },
+            },
+            {
+                label: 'Finalizar conversa sem pesquisa',
                 icon: 'pi pi-times',
                 command: () => {
                     confirm.require({
                         message: 'Deseja finalizar a conversa?',
                         accept: () => {
+                            form.pesquisa = false
                             form.post(route('close_conversation'), {
                                 onSuccess: () => {
                                     toast.add({ severity: 'success', summary: 'Finalizando conversa', detail: 'Conversa finalizada com sucesso.', life: 3000})

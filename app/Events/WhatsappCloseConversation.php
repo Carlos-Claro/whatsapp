@@ -19,7 +19,7 @@ class WhatsappCloseConversation
      * Create a new event instance.
      */
     public function __construct(
-        public Conversations $conversation,
+        public array $data,
     )
     {
         //
