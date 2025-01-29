@@ -1,5 +1,6 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
+import { Badge } from 'primevue';
 import { computed, onMounted, ref } from 'vue';
 
 const form = useForm({
@@ -53,12 +54,12 @@ const parseJson = (key) => {
     let data = JSON.parse(props.item.data)
     return data[key]
 }
-console.log((JSON.parse(props.item.data)));
+console.log(props.item)
 
 </script>
 <template>
-    <div :class="`box-conversa ${messageSide ? 'place-items-start' : 'place-items-end'} `" :ref="props.item.id">
-        <div :class="`flex flex-col rounded text-right text-white h-auto w-1/2 px-4 py-2 my-2 mx-1 ${messageSide ? 'bg-[#202c33]' : 'bg-[#005c4b]'}`"   >
+    <div :class="`box-conversa ${messageSide ? 'place-items-start' : 'place-items-end'} `" :ref="props.item.id" v-if="messageType[0] !== 'reaction'">
+        <div :class="`flex flex-col rounded text-right text-white h-auto w-1/2 px-4 py-2 my-2 mx-1 ${messageSide ? 'bg-[#202c33]' : 'bg-[#005c4b]'}`" >
             <div
                 :class="`flex flex-col rounded text-right text-white h-auto w-5/6 px-4 py-2 my-2 mx-1 border-l-4 ${messageSide ? 'bg-[#1d282f] border-l-[#e26ab6]' : 'bg-[#025144] border-l-[#a5b337]'}`"
                 v-if="props.item.related">
@@ -121,5 +122,11 @@ console.log((JSON.parse(props.item.data)));
                 <p class="text-pink-200 text-[12px] " v-if="(props.item.memberable_type) && (props.item.memberable_type).indexOf('Contacts') < 0 ">{{ form.status }}</p>
             </div>
         </div>
+        <Badge
+            v-if="props.item.reaction"
+            :value="props.item.reaction.data"
+            severity="danger"
+            :class="`relative bottom-3 ${messageSide ? ' -right-3' : ' -left-3'}`"
+            />
     </div>
 </template>

@@ -28,8 +28,8 @@ class ButtonWhatsappProcess
      */
     public function handle(WhatsappButtonProcess $event): void
     {
-        Storage::disk('public')->append('events.log', '---- button ----');
-        Storage::disk('public')->append('events.log', print_r($event, true));
+        // Storage::disk('public')->append('events.log', '---- button ----');
+        // Storage::disk('public')->append('events.log', print_r($event, true));
         $message = Messages::where('wam_id', $event->button->context()->replyingToMessageId())->with(['conversation','contact','user'])->first();
         switch($message->type){
             case 'rate':

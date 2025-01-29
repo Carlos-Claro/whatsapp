@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\WhatsappButtonProcess;
 use App\Events\WhatsappDelivered;
+use App\Events\WhatsappTextProcess;
 use App\Models\Contacts;
 use App\Models\Messages;
 use App\Services\Whatsapp\Utils\Contact as UtilsContact;
@@ -62,99 +63,55 @@ class WhatsappWebhook extends Controller
                 'phone' => $this->event->customer()->phoneNumber(),
                 'phone_id' => (int) $this->event->customer()->phoneNumber(),
             ]);
-            if ($this->event instanceof Contact) {
-                $message = $this->saveMessage([
-                    'message' => [
-                        "wam_id" => $this->event->id(),
-                        "name" => $this->event->customer()->name(),
-                        "wa_id" => $this->event->customer()->phoneNumber(),
-                        "type" => 'contact',
-                        "created_at" => $this->event->receivedAt(),
-                        "body" => '',
-                        "caption" => null,
-                        "data" => collect([
-                            "name" => $this->event->formattedName(),
-                            "phones" => $this->event->phones(),
-                            "company" => $this->event->companyName(),
-                            "emails" => $this->event->emails(),
-                            "birthday" => $this->event->birthday(),
 
-                        ])->toJson(),
-                        "status" => 'delivered',
-                    ],
-                    'contact' => $contact,
+            if ($this->event instanceof Contact) {
+                $data = [
                     'type' => 'contact',
-                ]);
+                    'request' => $this->event,
+                    'contact' => $contact,
+                ];
+                WhatsappTextProcess::dispatch($data);
             }
 
             //Text Type Notification
             if ($this->event instanceof Text) {
-                    $message = $this->saveMessage([
-                        'message' => [
-                            "wam_id" => $this->event->id(),
-                            "name" => $this->event->customer()->name(),
-                            "wa_id" => $this->event->customer()->phoneNumber(),
-                            "type" => 'text',
-                            "created_at" => $this->event->receivedAt(),
-                            "body" => $this->event->message(),
-                            "caption" => null,
-                            "data" => null,
-                            "status" => 'delivered',
-
-                        ],
-                        'contact' => $contact,
-                        'type' => 'contact',
-                    ]);
+                $data = [
+                    'type' => 'text',
+                    'request' => $this->event,
+                    'contact' => $contact,
+                ];
+                WhatsappTextProcess::dispatch($data);
             }
 
             //Media Type Notification
             if ($this->event instanceof Media) {
-                    $message = $this->saveMessage([
-                        'message' => [
-                            "wam_id" => $this->event->id(),
-                            "name" => $this->event->customer()->name(),
-                            "wa_id" => $this->event->customer()->phoneNumber(),
-                            "type" => 'image',
-                            "timestamp" => ($this->event->receivedAt())->format('Y-m-d H:i:s'),
-                            "body" => $this->compileMedia($this->event->imageId(), $this->event->mimeType()),
-                            "caption" => $this->event->caption(),
-                            "data" => null,
-                            "status" => 'delivered',
-
-                        ],
-                        'contact' => $contact,
-                        'type' => 'contact',
-                   ]);
+                $data = [
+                    'type' => 'media',
+                    'request' => $this->event,
+                    'contact' => $contact,
+                ];
+                WhatsappTextProcess::dispatch($data);
             }
 
             //Location Type Notification
             if ($this->event instanceof Location) {
-                $message = $this->saveMessage([
-                    'message' => [
-                        "wam_id" => $this->event->id(),
-                        "name" => $this->event->customer()->name(),
-                        "wa_id" => $this->event->customer()->phoneNumber(),
-                        "type" => 'location',
-                        "created_at" => $this->event->receivedAt(),
-                        "body" => '',
-                        "caption" => null,
-                        "data" => collect([
-                            "latitude" => $this->event->latitude(),
-                            "longitude" => $this->event->longitude(),
-                            "address" => $this->event->address(),
-                            "name" => $this->event->name(),
-                        ])->toJson(),
-                        "status" => 'delivered',
-                    ],
+                $data = [
+                    'type' => 'location',
+                    'request' => $this->event,
                     'contact' => $contact,
-                    'type' => 'contact',
-                ]);
+                ];
+                WhatsappTextProcess::dispatch($data);
             }
 
             //Reaction Type Notification
             if ($this->event instanceof Reaction) {
-
-                Log::info('Reaction: ', [$this->event]);
+                $data = [
+                    'type' => 'reaction',
+                    'request' => $this->event,
+                    'contact' => $contact,
+                ];
+                WhatsappTextProcess::dispatch($data);
+                // Log::info('Reaction: ', [$this->event]);
             }
 
             //Button Type Notification
@@ -200,14 +157,5 @@ class WhatsappWebhook extends Controller
             WhatsappDelivered::dispatch($wam);
         }
     }
-        private function compileMedia(string $mediaId, string $mimeType): string
-    {
-        // dd($this->whatsapp);
-        $download_resource = $this->whatsapp->downloadMedia($mediaId);
-        $mimeType = explode(';', $mimeType)[0];
-        $type = explode('/',$mimeType);
-        $fileName = Str::uuid()->toString().'.'.$type[1];
-        Storage::disk('public')->put($fileName, $download_resource->body());
-        return $fileName;
-    }
+
 }

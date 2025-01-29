@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use GuzzleHttp\Psr7\Message;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Storage;
@@ -26,6 +28,7 @@ class Messages extends Model
 
     ];
     protected $appends = ['image_address'];
+    protected $with = ['reaction'];
     protected function casts(): array
     {
         return [
@@ -59,5 +62,9 @@ class Messages extends Model
             }
             return '';
         });
+    }
+    public function reaction(): HasOne
+    {
+        return $this->hasOne(Messages::class, 'related_id', 'id')->where('type', 'reaction');
     }
 }

@@ -10,7 +10,9 @@ use App\Models\Messages;
 use App\Models\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Netflie\WhatsAppCloudApi\WhatsAppCloudApi;
+use Illuminate\Support\Str;
 
 
 trait Message{
@@ -151,4 +153,5 @@ trait Message{
         }
         return $conversation;
     }
+
 }
