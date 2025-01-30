@@ -142,7 +142,7 @@ class WhatsappWebhook extends Controller
             }
             //Unknown Type Notification
             if ($this->event instanceof Unknown) {
-                Log::info('Unknown: ', [$this->event]);
+                Log::notice('Unknown: ', [$this->event]);
             }
 
         }

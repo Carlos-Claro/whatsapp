@@ -1,13 +1,14 @@
 <script setup>
 import { Badge, Button, Divider } from 'primevue';
 import { onMounted, ref, watch } from 'vue';
+import ConversationTitle from './ConversationTitle.vue';
 
 const props = defineProps({
     conversations: Object,
     selectConversation: Function,
     activeIdConversation: Number,
 })
-console.log(props.conversations)
+// console.log(props.conversations)
 
 const model = defineModel('selectConversation')
 const emit = defineEmits(['update.selectConversation'])
@@ -20,6 +21,9 @@ const updateConversations = (item) => {
 onMounted(() => {
     activeConversations.value = props.conversations.open
 })
+const clickConversation = (talk) => {
+    emit('update:selectConversation', talk)
+}
 </script>
 <template>
     <div class="w-full bg-[#111b21] relative">
@@ -34,21 +38,11 @@ onMounted(() => {
                 class=" w-full border-b border-[#2a3942] "
                 :ref="item.id"
                  >
-            <div :class="`grid grid-flow-col grid-cols-6 p-4  ${item.id == props.activeIdConversation ? 'bg-[#2a3942]' : 'bg-[#111b21]'}`" @click="emit('update:selectConversation', item)">
-                    <span class="pi pi-user col-span-1" style="font-size: 1.5rem;"></span>
-                    <div class="text-center  sm:text-left col-span-4">
-                        <p class="text-xs text-white font-semibold">
-                            {{ item.contact.name }}
-                        </p>
-                        <p class="text-[11px] text-gray-300">
-                            {{ item.lastMessage.body.substring(0, 12) }} ...
-                        </p>
-                    </div>
-                    <div class="w-fit col-span-1 text-right" v-if="item.unReadMessages">
-                        <Badge  :value="item.unReadMessages" severity="contrast" class="mr-1" size="small"></Badge>
-                    </div>
-                </div>
-
+                 <ConversationTitle
+                    :conversation="item"
+                    @update:selectConversation="clickConversation"
+                    :activeIdConversation="activeIdConversation"
+                    />
             </div>
         </div>
         <div class="grid grid-flow-row gap-1 absolute inset-x-0 bottom-0">

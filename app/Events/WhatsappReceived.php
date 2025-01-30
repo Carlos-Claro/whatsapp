@@ -17,7 +17,7 @@ class WhatsappReceived
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public function __construct(public array $conversation)
     {
         //
     }
@@ -30,7 +30,7 @@ class WhatsappReceived
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new Channel('conversation_received.'.$this->conversation['id']),
         ];
     }
 }

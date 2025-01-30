@@ -32,15 +32,17 @@ class TextWhatsappProcess
      */
     public function handle(WhatsappTextProcess $event): void
     {
-        // dd($event);
+        if ( $event->data['request']->context()){
+            $message = Messages::where('wam_id', $event->data['request']->context()->replyingToMessageId())->first();
+        }
         switch($event->data['type']){
             case 'button':
-                $message = Messages::where('wam_id', $event->data['request']->context()->replyingToMessageId())->first();
                 $data = [
                     'type' => 'contact',
                     'contact' => $event->data['contact'],
                     'message' => $this->getData(
-                        $event->data,
+                        $event->data['request'],
+                        $event->data['type'],
                         $event->data['request']->text(),
                         '',
                         $message->id,
@@ -48,16 +50,14 @@ class TextWhatsappProcess
                 ];
                 break;
             case 'text':
-                if ( $event->data['request']->context()){
-                    $message = Messages::where('wam_id', $event->data['request']->context()->replyingToMessageId())->first();
 
-                }
 
                 $data = [
                     'type' => 'contact',
                     'contact' => $event->data['contact'],
                     'message' => $this->getData(
-                        $event->data,
+                        $event->data['request'],
+                        $event->data['type'],
                         '',
                         $event->data['request']->message(),
                         ( isset($message) ? $message->id : null ),
@@ -70,7 +70,8 @@ class TextWhatsappProcess
                     'type' => 'contact',
                     'contact' => $event->data['contact'],
                     'message' => $this->getData(
-                            $event->data,
+                            $event->data['request'],
+                            $event->data['type'],
                             collect([
                                 "latitude" => $event->data['request']->latitude(),
                                 "longitude" => $event->data['request']->longitude(),
@@ -78,7 +79,7 @@ class TextWhatsappProcess
                                 "name" => $event->data['request']->name(),
                             ])->toJson(),
                             '',
-                            null,
+                            ( isset($message) ? $message->id : null ),
                             ''
                         ),
                 ];
@@ -89,10 +90,11 @@ class TextWhatsappProcess
                     'type' => 'contact',
                     'contact' => $event->data['contact'],
                     'message' => $this->getData(
-                            $event->data,
+                            $event->data['request'],
+                            $event->data['type'],
                             '',
                             $this->compileMedia($event->data['request']->imageId(), $event->data['request']->mimeType()),
-                            null,
+                            ( isset($message) ? $message->id : null ),
                             $event->data['request']->caption()
                         ),
                 ];
@@ -103,27 +105,22 @@ class TextWhatsappProcess
                     'type' => 'contact',
                     'contact' => $event->data['contact'],
                     'message' => $this->getData(
-                        $event->data,
+                        $event->data['request'],
+                        $event->data['type'],
                         collect([
                             "name" => $event->data['request']->formattedName(),
                             "phones" => $event->data['request']->phones(),
                             "company" => $event->data['request']->companyName(),
                             "emails" => $event->data['request']->emails(),
                             "birthday" => $event->data['request']->birthday(),
-                        ])->toJson()
+                        ])->toJson(),
+                        '',
+                        ( isset($message) ? $message->id : null ),
                     ),
                 ];
                 $this->saveMessage($data);
                 break;
-            case 'system':
 
-                break;
-            case 'interactive':
-
-                break;
-            case 'order':
-
-                break;
             case 'reaction':
                 $message = Messages::where('wam_id', $event->data['request']->messageID())->with(['conversation','contact','user'])->first();
                 $data = [
@@ -136,25 +133,18 @@ class TextWhatsappProcess
             case 'unknown':
 
                 break;
+            case 'system':
+
+                break;
+            case 'interactive':
+
+                break;
+            case 'order':
+
+                break;
         }
 
     }
-    public function getData($request, $data = '', $body = '', $related_id = null, $caption = null){
-        return [
-            "wam_id" => $request['request']->id(),
-            "name" => $request['request']->customer()->name(),
-            "wa_id" => $request['request']->customer()->phoneNumber(),
-            "type" => $request['type'] == 'media' ? 'image' : $request['type'],
-            "created_at" => $request['request']->receivedAt(),
-            "body" => $body,
-            "caption" => $caption,
-            "data" => $data,
-            "status" => 'delivered',
-            "related_id" => $related_id,
-        ];
-    }
-    // 'conversation_id' => $request->conversation->id,
-
     public function compileMedia(string $mediaId, string $mimeType): string
     {
         //  dd($this->whatsapp);

@@ -3,6 +3,7 @@ namespace App\Services\Whatsapp\Utils;
 
 
 use App\Events\WhatsappNewMessage;
+use App\Events\WhatsappReceived;
 use App\Events\WhatsappWelcomeMessage;
 use App\Models\Contacts;
 use App\Models\Conversations;
@@ -58,6 +59,7 @@ trait Message{
             WhatsappWelcomeMessage::dispatch($item);
         }
         WhatsappNewMessage::dispatch($conversation);
+        WhatsappReceived::dispatch($this->arrayConversation($conversation));
         return $message;
     }
     public function existsMessageInDatabase ($id){
@@ -88,15 +90,18 @@ trait Message{
     private function toArray($conversations): Collection {
         $return = [];
         foreach( $conversations as $conversation ){
-            $return[] = [
-                'id' => $conversation->id,
-                'status' => $conversation->status,
-                'lastMessage' => $conversation->lastMessage,
-                'contact' => $conversation->contact->contact,
-                'unReadMessages' => $conversation->unReadMessages->count(),
-            ];
+            $return[] = $this->arrayConversation($conversation);
         }
         return collect($return);
+    }
+    private function arrayConversation($conversation): array {
+        return [
+            'id' => $conversation->id,
+            'status' => $conversation->status,
+            'lastMessage' => $conversation->lastMessage,
+            'contact' => $conversation->contact->contact,
+            'unReadMessages' => $conversation->unReadMessages->count(),
+        ];
     }
     public function conversationsUser(User $user, $status = 0)
     {
@@ -153,5 +158,18 @@ trait Message{
         }
         return $conversation;
     }
-
+    public function getData($request, $type, $data = '', $body = '', $related_id = null, $caption = null){
+        return [
+            "wam_id" => $request->id(),
+            "name" => $request->customer()->name(),
+            "wa_id" => $request->customer()->phoneNumber(),
+            "type" => $type == 'media' ? 'image' : $type,
+            "created_at" => $request->receivedAt(),
+            "body" => $body,
+            "caption" => $caption,
+            "data" => $data,
+            "status" => 'delivered',
+            "related_id" => $related_id,
+        ];
+    }
 }

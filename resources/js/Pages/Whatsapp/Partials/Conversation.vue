@@ -69,8 +69,6 @@ watchEffect(() => {
 const assigned = () => {
     console.log('assigned')
     console.log(props.conversation.id)
-
-
     window.Echo.channel(`conversation.${props.conversation.id}`)
         .listen('WhatsappNewMessage', (e) => {
             console.log('e', e);
@@ -78,10 +76,7 @@ const assigned = () => {
                 updateConversation()
             }
         })
-
 }
-
-
 </script>
 <template>
 

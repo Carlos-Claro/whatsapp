@@ -11,14 +11,12 @@ const form = useForm({
 const props = defineProps({
     item: Object,
 })
-// console.log(window.Echo);
 window.Echo.channel(`messages.${props.item.id}`)
     .listen('WhatsappDelivered', (e) => {
         if ( props.item.id == e.message.id ){
             form.status = e.message.status
         }
     })
-
 onMounted(() => {
     form.status = props.item.status
     if ( (props.item.memberable_type) && (props.item.memberable_type).indexOf('Contacts') >= 0 && props.item.status == 'delivered' ){
@@ -45,7 +43,6 @@ const primaryType = (type) => {
         return 'text'
     }
     return type
-
 }
 const messageType = computed(() => {
     return [primaryType(props.item.type), props.item.type]
@@ -54,8 +51,7 @@ const parseJson = (key) => {
     let data = JSON.parse(props.item.data)
     return data[key]
 }
-console.log(props.item)
-
+// console.log(props.item)
 </script>
 <template>
     <div :class="`box-conversa ${messageSide ? 'place-items-start' : 'place-items-end'} `" :ref="props.item.id" v-if="messageType[0] !== 'reaction'">

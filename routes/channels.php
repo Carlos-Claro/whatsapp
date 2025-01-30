@@ -15,3 +15,6 @@ Broadcast::channel('messages.{id}', function (User $user, int $id) {
 Broadcast::channel('conversation.{id}', function (User $user, int $id) {
     return true;
 });
+Broadcast::channel('conversation_received.{id}', function (User $user, int $id) {
+    return true;
+});
