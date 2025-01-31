@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/send_message', [WhatsappController::class, 'send_message'])->name('send_message');
     Route::post('/mark_message_as_read', [WhatsappController::class, 'mark_message_as_read'])->name('mark_message_as_read');
     Route::get('/get_messages', [WhatsappController::class, 'get_messages'])->name('get_messages');
+    Route::get('/get_resume', [WhatsappController::class, 'get_resume'])->name('get_resume');
     Route::post('/close_conversation', [WhatsappController::class, 'close_conversation'])->name('close_conversation');
 });
 Route::get('/test', function(){

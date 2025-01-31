@@ -1,10 +1,10 @@
 <script setup>
 import { Badge, Button, Divider } from 'primevue';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, watchEffect } from 'vue';
 import ConversationTitle from './ConversationTitle.vue';
 
 const props = defineProps({
-    conversations: Object,
+    conversations: Object|null,
     selectConversation: Function,
     activeIdConversation: Number,
 })
@@ -19,7 +19,14 @@ const updateConversations = (item) => {
     activeConversations.value = props.conversations[item]
 }
 onMounted(() => {
-    activeConversations.value = props.conversations.open
+    if ( props.conversations ){
+        activeConversations.value = props.conversations.open
+    }
+})
+watchEffect(() => {
+    if ( props.conversations ){
+        activeConversations.value = props.conversations.open
+    }
 })
 const clickConversation = (talk) => {
     emit('update:selectConversation', talk)

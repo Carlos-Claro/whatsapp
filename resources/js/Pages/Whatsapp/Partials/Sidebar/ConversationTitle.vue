@@ -1,6 +1,6 @@
 <script setup>
 import { Badge } from 'primevue';
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 
 const props = defineProps({
     conversation: Object,
@@ -11,16 +11,15 @@ const model = defineModel('selectConversation')
 const emit = defineEmits(['update.selectConversation'])
 console.log(props.conversation);
 const clickConversation = () => {
-    console.log('clicou');
     emit('update:selectConversation', props.conversation)
 }
 window.Echo.channel(`conversation_received.${props.conversation.id}`).listen('WhatsappReceived', (e) => {
-    console.log('e', e);
     if ( props.conversation.id == e.conversation.id ){
         data.value = e.conversation
     }
 })
-const data = reactive(props.conversation)
+let data = ref(props.conversation)
+
 </script>
 <template>
     <div
