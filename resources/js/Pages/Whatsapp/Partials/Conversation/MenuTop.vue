@@ -1,7 +1,8 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3'
-import { Button, ConfirmDialog, Menu, Toast, useConfirm, useToast } from 'primevue'
-import { ref } from 'vue'
+import { Button, ConfirmDialog, Dialog, Menu, Toast, useConfirm, useToast } from 'primevue'
+import { ref, watch } from 'vue'
+import Empresa from './Empresa.vue'
 
 const props = defineProps({
     id: {
@@ -33,6 +34,13 @@ const itemsMenu = ref([
                             toast.add({ severity: 'info', summary: 'Transferir de setor', detail: 'Cancelado.', life: 3000})
                         }
                     })
+                },
+            },
+            {
+                label: 'Vincular Empresa',
+                icon: 'pi pi-building-columns',
+                command: () => {
+                    visibleEmpresa.value = true
                 },
             },
             {
@@ -87,6 +95,7 @@ const itemsMenu = ref([
 const toogle = (event) => {
     menu.value.toggle(event);
 };
+const visibleEmpresa = ref(false)
 </script>
 <template>
     <Toast />
@@ -106,4 +115,18 @@ const toogle = (event) => {
         :model="itemsMenu"
         :popup="true"
         />
+    <Dialog
+        v-model:visible="visibleEmpresa"
+        header="Vincular Empresa"
+        modal
+        :closable="true"
+        :dismissable="false"
+        :showHeader="true"
+        :baseZIndex="10000"
+        :style="{width: '50vw'}"
+        >
+        <Empresa
+            @update:visible="visibleEmpresa = event"
+         />
+    </Dialog>
 </template>

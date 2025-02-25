@@ -2,6 +2,7 @@
 
 use App\Events\WhatsappDelivered;
 use App\Events\WhatsappNewMessage;
+use App\Http\Controllers\EmpresasController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WhatsappController;
 use App\Http\Controllers\WhatsappWebhook;
@@ -36,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/get_resume', [WhatsappController::class, 'get_resume'])->name('get_resume');
     Route::post('/close_conversation', [WhatsappController::class, 'close_conversation'])->name('close_conversation');
 });
+Route::get('/search_empresa', [EmpresasController::class, 'search'])->name('search_empresa');
 Route::get('/test', function(){
     $message = Conversations::find(31);
     broadcast(new WhatsappNewMessage($message))->via('reverb');

@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhook',
             'send_message',
             'conversations',
+            'search_empresa',
         ]);
 
         //
