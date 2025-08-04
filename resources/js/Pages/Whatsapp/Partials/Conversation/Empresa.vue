@@ -42,8 +42,12 @@ watch(empresa, (value) => {
 })
 </script>
 <template>
-
-    <div class="card flex justify-center">
+    <div class="card" v-if="empresa !== '' && typeof empresa == 'object'">
+        <h4>Empresa Vinculada</h4>
+        <p>Empresa: {{empresa.name}}</p>
+        <Button @click="empresa = ''">Desvincular</Button>
+    </div>
+    <div class="card flex justify-center"  v-else>
         <AutoComplete
                 v-model="empresa"
                 :suggestions="filteredEmpresas.data"
@@ -59,5 +63,4 @@ watch(empresa, (value) => {
         </AutoComplete>
     </div>
     <Button @click="emit('update:visible', false)">Fechar</Button>
-
 </template>

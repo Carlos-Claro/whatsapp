@@ -45,17 +45,28 @@ class WhatsappWebhook extends Controller
             'access_token' => env('WHATSAPP_TOKEN'),
         ]);
     }
+    private function setEventPayload(Request $request): void
+    {
+        if ( ! empty(file_get_contents('php://input')) ){
+            $this->payload =  json_decode(file_get_contents('php://input'), true);
+        }else{
+            $this->payload = $request->all();
+        }
+        $this->event = $this->webhook->read($this->payload);
+    }
+    private function setLog(): void {
+        Storage::disk('public')->append('events.log', '-------------------payload-----');
+        Storage::disk('public')->append('events.log', print_r($this->payload, true));
+        Storage::disk('public')->append('events.log', '-------------------event-----');
+        Storage::disk('public')->append('events.log', print_r($this->event, true));
+    }
     /**
      * Handle the incoming request.
      */
     public function __invoke(Request $request)
     {
-        $this->payload = json_decode(file_get_contents('php://input'), true);
-        $this->event = $this->webhook->read($this->payload);
-        Storage::disk('public')->append('events.log', '-------------------payload-----');
-        Storage::disk('public')->append('events.log', print_r($this->payload, true));
-        Storage::disk('public')->append('events.log', '-------------------event-----');
-        Storage::disk('public')->append('events.log', print_r($this->event, true));
+        $this->setEventPayload($request);
+        $this->setLog();
         $messageExists = $this->existsMessageInDatabase($this->event->id());
         if ( $messageExists->isEmpty() ){
             $contact = $this->existsContact([
@@ -138,7 +149,7 @@ class WhatsappWebhook extends Controller
 
             //Interactive Type Notification
             if ($this->event instanceof Interactive) {
-                Log::info('Interactive: ', [$this->event]);
+                WhatsappButtonProcess::dispatch($this->event);
             }
             //Unknown Type Notification
             if ($this->event instanceof Unknown) {

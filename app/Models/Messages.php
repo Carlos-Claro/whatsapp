@@ -32,7 +32,7 @@ class Messages extends Model
     protected function casts(): array
     {
         return [
-            'created_at' => 'datetime:d/m/Y H:i:s',
+            'created_at' => 'datetime:d/m/Y H:i',
         ];
     }
     public function related(): HasOne

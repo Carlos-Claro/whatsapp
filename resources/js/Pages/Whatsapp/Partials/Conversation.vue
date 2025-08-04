@@ -1,10 +1,11 @@
 <script setup>
 import { useFetch, useScroll } from '@vueuse/core';
-import { Button, ConfirmDialog, InputText, Menu, Toast, useConfirm, useToast } from 'primevue';
+import { Button, ConfirmDialog, Dialog, InputText, Menu, Toast, useConfirm, useToast } from 'primevue';
 import { computed, onMounted, onUpdated, reactive, ref, toRefs, watch, watchEffect } from 'vue';
 import Message from './Message.vue';
 import Send from './Send.vue';
 import MenuTop from './Conversation/MenuTop.vue';
+import Information from './Conversation/Information.vue';
 
 
 const props = defineProps({
@@ -77,15 +78,37 @@ const assigned = () => {
             }
         })
 }
+const activeInformation = ref(false)
+const showInformation = () => {
+
+    activeInformation.value = !activeInformation.value
+}
 </script>
 <template>
+    <Dialog
+        v-model:visible="activeInformation"
+        position="right"
+        :style="{ width: '40vw' }"
+        :modal="false"
+        :close-on-mask="true"
+        :show-header="true"
+        :baseZIndex="10000"
+        :dismissableMask="false"
+        >
+        <Information
+            :conversation_id="props.conversation.id"
+            :activeInformation="activeInformation"
+        />
+
+    </Dialog>
+
 
     <Toast />
     <template v-if="props.conversation">
         <div class="bg-[#202c33] p-4 w-full row-span-1 self-start">
-            <div class="flex flex-row">
+            <div class="flex flex-row point">
                 <span class="pi pi-user w-16" style="font-size: 2.5rem;"></span>
-                <div class="text-center grow">
+                <div class="text-center grow cursor-pointer" v-on:click="showInformation">
                     <p class="text-lg text-left text-white font-sans">
                         {{ props.conversation.id }} - {{  props.conversation.contact.name  }}
                     </p>
@@ -95,15 +118,16 @@ const assigned = () => {
                 </div>
             </div>
         </div>
+
         <div class=" bg-[#0b141a] row-span-10 h-full self-center overflow-y-scroll scroll-smooth" ref="conversationElement">
-            <div class="flex flex-col place-content-end" >
-                <template v-for="item in messages.data" v-if="messages.data != null" ref="isFinished">
-                    <Message :item="item" />
-                </template>
-                <template v-else>
-                    <Message :item="props.conversation.lastMessage" />
-                </template>
-            </div>
+                <div class="flex flex-col place-content-end " >
+                    <template v-for="item in messages.data" v-if="messages.data != null" ref="isFinished">
+                        <Message :item="item" />
+                    </template>
+                    <template v-else>
+                        <Message :item="props.conversation.lastMessage" />
+                    </template>
+                </div>
         </div>
         <Send
             v-if="props.conversation.status == 0"

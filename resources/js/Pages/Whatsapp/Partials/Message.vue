@@ -51,7 +51,8 @@ const parseJson = (key) => {
     let data = JSON.parse(props.item.data)
     return data[key]
 }
-// console.log(props.item)
+console.log(props.item.data)
+
 </script>
 <template>
     <div :class="`box-conversa ${messageSide ? 'place-items-start' : 'place-items-end'} `" :ref="props.item.id" v-if="messageType[0] !== 'reaction'">
@@ -66,6 +67,17 @@ const parseJson = (key) => {
                 :class="`font-base ${messageSide ? 'text-left' : 'text-right'}`">
                 {{ props.item.body }}
             </p>
+            <div
+                v-if="messageType[0] == 'button'"
+                :class="`font-base ${messageSide ? 'text-left' : 'text-right'}`">
+                <p>{{ props.item.body }}</p>
+                <div class="grid gap-1 grid-cols-3">
+                    <template v-for="(button, index) in JSON.parse(props.item.data)" :key="index">
+                        <div class="border runded-sm border-gray-800  text-center">{{ button.title }}</div>
+                    </template>
+
+                </div>
+            </div>
             <div
                 v-if="messageType[0] == 'contact'"
                 :class="`flex flex-col flex flex-col rounded text-right text-white h-auto w-5/6 px-4 py-2 my-2 mx-1 border-l-4 ${messageSide ? 'bg-[#1d282f] border-l-[#e26ab6]' : 'bg-[#025144] border-l-[#a5b337]'} `">

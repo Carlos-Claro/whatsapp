@@ -29,7 +29,7 @@ class CloseWhatsappConversation
      */
     public function handle(WhatsappCloseConversation $event): void
     {
-        dd($event->data['conversation']);
+        // dd($event->data['conversation']);
         if ( $event->data['pesquisa'] ){
             $response = $this->whatsapp->sendTemplate($event->data['conversation']->contact->contact->phone_id,'avalie','pt_BR');
             $decoded = $response->decodedBody();

@@ -6,11 +6,10 @@ use App\Models\Contacts;
 
 trait Contact {
     public function existsContact(array $data){
-        $contact = Contacts::where('phone_id',$data['phone_id'])->get();
-        if ( $contact->isEmpty() ){
-            $contact = Contacts::create($data)->get();
+        $contact = Contacts::where('phone_id',$data['phone_id'])->first();
+        if ( ! $contact ){
+            $contact = Contacts::create($data);
         }
-        return $contact[0];
+        return $contact;
     }
-
 }

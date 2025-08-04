@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'send_message',
             'conversations',
             'search_empresa',
+            'get_conversation',
         ]);
 
         //

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Empresas extends Model
@@ -191,5 +192,19 @@ class Empresas extends Model
     "site_image_4_descricao",
     "politica_privacidad",
     ];
+    protected $appends = ['logo_address'];
     //
+    public function conversations()
+    {
+        return $this->hasMany(Conversations::class, 'empresa_id', 'id');
+    }
+    public function logoAddress(): Attribute
+    {
+        return Attribute::get(function(){
+            if ($this->pagina_logo_pequeno){
+                return 'https://www.pow.com.br/powsites/'.$this->id.'/'.$this->pagina_logo_pequeno;
+            }
+            return '';
+        });
+    }
 }

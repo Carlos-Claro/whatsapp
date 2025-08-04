@@ -32,6 +32,7 @@ class TextWhatsappProcess
      */
     public function handle(WhatsappTextProcess $event): void
     {
+        // dd($event->data);
         if ( $event->data['request']->context()){
             $message = Messages::where('wam_id', $event->data['request']->context()->replyingToMessageId())->first();
         }
@@ -50,8 +51,6 @@ class TextWhatsappProcess
                 ];
                 break;
             case 'text':
-
-
                 $data = [
                     'type' => 'contact',
                     'contact' => $event->data['contact'],
@@ -63,7 +62,6 @@ class TextWhatsappProcess
                         ( isset($message) ? $message->id : null ),
                     ),
                 ];
-                $this->saveMessage($data);
                 break;
             case 'location':
                 $data = [
@@ -83,7 +81,6 @@ class TextWhatsappProcess
                             ''
                         ),
                 ];
-                $this->saveMessage($data);
                 break;
             case 'media':
                 $data = [
@@ -98,7 +95,6 @@ class TextWhatsappProcess
                             $event->data['request']->caption()
                         ),
                 ];
-                $this->saveMessage($data);
                 break;
             case 'contact':
                 $data = [
@@ -118,7 +114,6 @@ class TextWhatsappProcess
                         ( isset($message) ? $message->id : null ),
                     ),
                 ];
-                $this->saveMessage($data);
                 break;
 
             case 'reaction':
@@ -128,21 +123,15 @@ class TextWhatsappProcess
                     'contact' => $event->data['contact'],
                     'message' => $this->getData($event->data, $event->data['request']->emoji(), '', $message->id),
                 ];
-                $this->saveMessage($data);
-                break;
-            case 'unknown':
-
                 break;
             case 'system':
-
-                break;
+            case 'unknown':
             case 'interactive':
-
-                break;
             case 'order':
-
+                $data = [];
                 break;
         }
+        $this->saveMessage($data);
 
     }
     public function compileMedia(string $mediaId, string $mimeType): string

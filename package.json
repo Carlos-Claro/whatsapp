@@ -21,9 +21,11 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "@primevue/themes": "^4.2.4",
+        "@heroicons/vue": "^2.2.0",
+        "@primeuix/themes": "^1.0.3",
         "@vueuse/core": "^12.0.0",
         "primeicons": "^7.0.0",
-        "primevue": "^4.2.4"
+        "primevue": "^4.3.3",
+        "quill": "^2.0.3"
     }
 }

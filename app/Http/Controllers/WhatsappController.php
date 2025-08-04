@@ -7,7 +7,9 @@ use App\Events\WhatsappSendMessage;
 use App\Models\Contacts;
 use App\Models\Conversations;
 use App\Models\Messages;
+use App\Models\Start_conversation;
 use App\Services\Whatsapp\Utils\Contact;
+use App\Services\Whatsapp\Utils\Conversation;
 use App\Services\Whatsapp\Utils\Message;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\Request;
@@ -17,7 +19,7 @@ use Netflie\WhatsAppCloudApi\WebHook;
 
 class WhatsappController extends Controller
 {
-    use Contact, Message;
+    use Contact, Message, Conversation;
 
     public function set(Request $request){
         $webhook = new WebHook();
@@ -52,7 +54,8 @@ class WhatsappController extends Controller
     }
     public function send_message_test(Request $request)
     {
-
+        $newMessage = Start_conversation::where('tag', 'start')->first();
+        dd($newMessage->answer);
         //wamid.HBgMNTU0MTkyNTkxNjU1FQIAERgSMDlBNjZDMTEyOEYxNzIwRjc0AA==
         $contact = [
             'name' => 'test user name',
@@ -75,6 +78,7 @@ class WhatsappController extends Controller
 
     public function conversations(Request $request){
 
+        $conversation = Conversations::where('id', 35)->with(['members', 'contact', 'unReadMessages', 'lastMessageSystem'])->first();
         return Inertia::render('Whatsapp/Whatsapp');
     }
     public function get_resume(Request $request){

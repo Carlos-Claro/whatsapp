@@ -40,6 +40,12 @@ const showingNavigationDropdown = ref(false);
                                     Dashboard
                                 </NavLink>
                                 <NavLink
+                                    :href="route('start_conversation.index')"
+                                    :active="route().current('start_conversation.index')"
+                                >
+                                    Start Conversation Items
+                                </NavLink>
+                                <NavLink
                                     :href="route('conversations')"
                                     :active="route().current('conversations')"
                                 >
@@ -151,6 +157,18 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('dashboard')"
                         >
                             Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('conversations')"
+                            :active="route().current('conversations')"
+                        >
+                            Conversations
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('start_conversation.index')"
+                            :active="route().current('start_conversation.index')"
+                        >
+                            Start Conversation Items
                         </ResponsiveNavLink>
                     </div>
 
