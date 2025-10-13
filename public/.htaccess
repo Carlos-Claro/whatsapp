@@ -1,10 +1,11 @@
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
+        Options +MultiViews +Indexes +FollowSymLinks +SymLinksIfOwnerMatch
     </IfModule>
 
     RewriteEngine On
 
+    DirectoryIndex index.php
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

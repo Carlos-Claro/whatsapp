@@ -63,7 +63,7 @@ console.log(props.item.data)
                 {{ props.item.related.body }}
             </div>
             <p
-                v-if="messageType[0] == 'text'"
+                v-if="messageType[0] == 'text' || messageType[0] == 'interactive'"
                 :class="`font-base ${messageSide ? 'text-left' : 'text-right'}`">
                 {{ props.item.body }}
             </p>

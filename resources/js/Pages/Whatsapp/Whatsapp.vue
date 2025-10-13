@@ -10,7 +10,11 @@ import { Toast, useToast } from 'primevue';
 import { useFetch } from '@vueuse/core';
 
 const page = usePage()
-
+defineProps({
+    logo: {
+        type: String,
+    },
+});
 
 
 const activeIdConversation = ref(null)
@@ -64,7 +68,7 @@ watch(isFinished, (value) => {
     <WhatsappLayout >
         <div class="sidebar basis-1/4">
             <div class="flex flex-row h-full">
-                <Options />
+                <Options :logo="logo" />
                 <Conversations
                     :conversations="conversations.data"
                     @update:selectConversation="selectConversation"

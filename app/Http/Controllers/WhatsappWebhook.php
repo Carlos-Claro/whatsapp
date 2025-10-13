@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\StartConversationProcessEvent;
 use App\Events\WhatsappButtonProcess;
 use App\Events\WhatsappDelivered;
 use App\Events\WhatsappTextProcess;
@@ -68,6 +69,7 @@ class WhatsappWebhook extends Controller
         $this->setEventPayload($request);
         $this->setLog();
         $messageExists = $this->existsMessageInDatabase($this->event->id());
+        // dd($this->event, $messageExists);
         if ( $messageExists->isEmpty() ){
             $contact = $this->existsContact([
                 'name' => $this->event->customer()->name(),
@@ -127,6 +129,7 @@ class WhatsappWebhook extends Controller
 
             //Button Type Notification
             if ($this->event instanceof Button) {
+
                 WhatsappButtonProcess::dispatch($this->event);
                 // Log::info('Button: ', [$this->event]);
             }
@@ -149,7 +152,17 @@ class WhatsappWebhook extends Controller
 
             //Interactive Type Notification
             if ($this->event instanceof Interactive) {
-                WhatsappButtonProcess::dispatch($this->event);
+                $data = [
+                    'type' => 'interactive',
+                    'request' => $this->event,
+                    'contact' => $contact,
+                ];
+                WhatsappTextProcess::dispatch($data);
+                // StartConversationProcessEvent::dispatch([
+                //     'type' => 'interactive',
+                //     'message' => $this->event,
+                //     'contact' => $contact,
+                // ]);
             }
             //Unknown Type Notification
             if ($this->event instanceof Unknown) {

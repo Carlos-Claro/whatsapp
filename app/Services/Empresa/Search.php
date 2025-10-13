@@ -12,7 +12,6 @@ trait Search
         $empresa = $this->getEmpresa($request);
         return $empresa;
     }
-
     private function getEmpresa(Request $request)
     {
         $search = Empresas::select(

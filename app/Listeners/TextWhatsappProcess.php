@@ -124,9 +124,21 @@ class TextWhatsappProcess
                     'message' => $this->getData($event->data, $event->data['request']->emoji(), '', $message->id),
                 ];
                 break;
+            case 'interactive':
+                $data = [
+                    'type' => 'contact',
+                    'contact' => $event->data['contact'],
+                    'message' => $this->getData(
+                        $event->data['request'],
+                        $event->data['type'],
+                        $event->data['request']->itemId(),
+                        $event->data['request']->title(),
+                        ( isset($message) ? $message->id : null ),
+                    ),
+                ];
+                break;
             case 'system':
             case 'unknown':
-            case 'interactive':
             case 'order':
                 $data = [];
                 break;

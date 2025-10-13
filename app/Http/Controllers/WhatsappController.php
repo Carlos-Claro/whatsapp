@@ -79,7 +79,9 @@ class WhatsappController extends Controller
     public function conversations(Request $request){
 
         $conversation = Conversations::where('id', 35)->with(['members', 'contact', 'unReadMessages', 'lastMessageSystem'])->first();
-        return Inertia::render('Whatsapp/Whatsapp');
+        return Inertia::render('Whatsapp/Whatsapp',[
+            'logo' => asset('storage/logoWhatsPow.png'),
+        ]);
     }
     public function get_resume(Request $request){
         $resume = $this->getResume($request->user());
@@ -95,6 +97,7 @@ class WhatsappController extends Controller
     }
     public function close_conversation(Request $request) {
         $conversation = Conversations::where('id', $request['id'])->with(['members', 'contact', 'unReadMessages'])->first();
+        // dd($conversation->contact);
         $data = [
             'conversation' => $conversation,
             'pesquisa' => $request['pesquisa'],

@@ -1,6 +1,10 @@
 <script setup>
 import { ref } from 'vue';
-
+defineProps({
+    logo: {
+        type: String,
+    },
+});
 const menus = [
     {
         title: 'Voltar ao Dashboard',
@@ -36,6 +40,7 @@ const menus = [
 </script>
 <template>
     <div class="w-fit bg-teal-900 p-3 shadow-sm shadow-black rounded-l-lg flex flex-col gap-1">
+
         <template v-for="menu in menus" >
             <a
                 v-if="menu.route"
@@ -55,5 +60,11 @@ const menus = [
                 <i :class="`pi ${menu.icon} m-2`"></i>
             </a>
         </template>
+
+        <a href="/">
+            <img :src="logo" class="w-10 h-10 mx-auto mb-2 absolute bottom-5 " />
+        </a>
+    </div>
+    <div class="bottom">
     </div>
 </template>
