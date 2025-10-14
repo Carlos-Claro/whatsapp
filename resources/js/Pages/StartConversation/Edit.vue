@@ -6,6 +6,7 @@ import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { Button, ConfirmDialog, Fieldset, InputText, Panel, Select, Toast, useToast } from 'primevue';
 import Answers from './Partials/Answers.vue';
 import { onMounted, reactive, readonly, ref, watch } from 'vue';
+import { defaultDocument } from '@vueuse/core';
 
 const toast = useToast();
 const page = usePage();
@@ -20,6 +21,8 @@ let formData = () => {
         return acc
     }, {});
 }
+console.log(formData())
+
 let form = useForm(formData)
 const save = () => {
     console.log(page.props.filters.action)
@@ -81,17 +84,21 @@ watch(() => form.department_id, (newValue) => {
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 py-6">
             <Panel>
                 <template #header>
-                    <h3 class="text-lg font-medium leading-6 text-gray-900" v-if="form[page.props.key]">
-                        {{ form.id }} - {{ form.question }} - {{ form.tag }} - created at {{ form.created_at }}
-                    </h3>
-                    <h3 class="" v-else>
-                        Novo Item Start <span v-if="page.props.item.related" class="font-bold">- Ligação:  {{ page.props.item.related.question }} : {{ form.tag }}</span>
-                    </h3>
+                    <div class="grid grid-flow-row bg-slate-300 p-2 rounded w-full">
+                        <div class="grid grid-cols-2 gap-2 border-b-2 p-1"><span class="font-bold">ID: </span>{{ form.id }}</div>
+                        <div class="grid grid-cols-2 gap-2 border-b-2 p-1"><span class="font-bold">Pergunta: </span>{{ form.question }}</div>
+                        <div class="grid grid-cols-2 gap-2 border-b-2 p-1"><span class="font-bold">Tag: </span>{{ form.tag }}</div>
+                        <div class="grid grid-cols-2 gap-2 border-b-2 p-1"><span class="font-bold">Criada em: </span>{{ page.props.item.created_at }}</div>
+                        <div v-if="page.props.item.related" class="grid grid-cols-2 gap-2 border-b-2 p-1"><span class="font-bold">Ligação: </span>{{ page.props.item.related.question }} : {{ form.tag }}</div>
+                    </div>
                 </template>
-                <div class="grid gap-2">
-                    <div class="grid grid-cols-2 gap-2" v-if="form[page.props.key] || page.props.item.tag">
-                        <div class="grid grid-cols-1 gap-2" v-if="page.props.item.related">
-                            <label :for="key" class="block mb-2">Pergunta anterior:</label>
+                <div class="grid grid-flow-row gap-2">
+                    <div class="grid grid-cols-2 gap-2 w-full bg-slate-300 p-2 rounded" v-if="form[page.props.key] || page.props.item.tag">
+                        <div class="grid col-span-2">
+                            <h3>Vinculo:</h3>
+                        </div>
+                        <div v-if="page.props.item.related">
+                            <label class="block mb-2">Pergunta anterior:</label>
                             <InputText
                                 v-model="page.props.item.related.question"
                                 placeholder="Pergunta anterior"
@@ -99,20 +106,30 @@ watch(() => form.department_id, (newValue) => {
                                 class="w-full"
                                 />
                         </div>
-                        <div class="grid grid-cols-1 gap-2"  >
-                            <label :for="key" class="block mb-2">{{page.props.filters.fields['tag'].title}}:</label>
+                        <div v-if="page.props.item.tag">
+                            <label class="block mb-2">{{page.props.filters.fields['tag'].title}}:</label>
                             <InputText
                                 v-model="form.tag"
                                 :placeholder="page.props.filters.fields['tag'].title"
                                 :readonly="true"
                                 class="w-full"
                                 />
-                            <InputError class="mt-2" :message="form.errors?.question"  />
+                            <InputError class="mt-2" :message="form.errors?.tag"  />
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-flow-row grid-cols-2 gap-2 w-full bg-slate-300 p-2 rounded">
+                        <div class="col-span-2">
+                            <label class="block mb-2">{{page.props.filters.fields['question'].title}}:</label>
+                            <InputText
+                                v-model="form.question"
+                                :placeholder="page.props.filters.fields['question'].title"
+                                :autofocus="true"
+                                class="w-full"
+                                />
+                            <InputError class="mt-2" :message="form.errors?.question" />
+                        </div>
                         <div>
-                            <label :for="key" class="block mb-2">{{page.props.filters.fields['type'].title}}:</label>
+                            <label class="block mb-2">{{page.props.filters.fields['type'].title}}:</label>
                             <Select
                                 id="type"
                                 dataKey="type"
@@ -127,13 +144,13 @@ watch(() => form.department_id, (newValue) => {
                                 <InputError class="mt-2" :message="form.errors?.type" />
                         </div>
                         <div>
-                            <label :for="key" class="block mb-2">{{page.props.filters.fields['status'].title}}:</label>
+                            <label class="block mb-2">{{page.props.filters.fields['status'].title}}:</label>
                             <Select
                                 id="status"
                                 dataKey="status"
                                 :placeholder="`Selecione o Status`"
                                 v-model="form.status"
-                                :options="page.props.filters.fields.status.items"
+                                :options="page.props.filters.fields['status'].items"
                                 checkmark
                                 optionLabel="text"
                                 optionValue="value"
@@ -141,24 +158,15 @@ watch(() => form.department_id, (newValue) => {
                                 ></Select>
                                 <InputError class="mt-2" :message="form.errors?.status" />
                         </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2">
-                        <label :for="key" class="block mb-2">{{page.props.filters.fields['question'].title}}:</label>
-                        <InputText
-                            v-model="form.question"
-                            :placeholder="page.props.filters.fields['question'].title"
-                            :autofocus="true"
-                            class="w-full"
-                            />
-                        <InputError class="mt-2" :message="form.errors?.question" />
+
                     </div>
                     <Answers
-                        :type="type"
+                        :type="form.type"
                         v-model="form.answer"
                         v-model:department_id="form.department_id"
                         :addon="page.props.filters.addon"
                         :id="form.id"
-                        class="w-full"
+                        class="w-full bg-slate-300 p-2 rounded"
                         @save="save()"
                          />
                 </div>

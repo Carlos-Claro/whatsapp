@@ -78,13 +78,14 @@ trait Fields {
     protected function defaults($item = false) : Collection {
         $data = collect([
             'statuses' => [
-                ['value' => '0', 'text' => 'Inativo'],
-                ['value' => '1', 'text' => 'Ativo'],
+                ['value' => 0, 'text' => 'Inativo'],
+                ['value' => 1, 'text' => 'Ativo'],
             ],
             'types' => [
                 ['value' => 'button', 'text' => 'Botão'],
                 ['value' => 'text', 'text' => 'Texto'],
                 ['value' => 'department', 'text' => 'Departamento'],
+                ['value' => 'departments', 'text' => 'Departamentos'],
             ],
             'button' => [
                 'tag' => ['title' => 'Tag - única e com apenas uma palavra'],

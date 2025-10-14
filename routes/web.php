@@ -25,12 +25,18 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Dashboard', [
-        'logo' => asset('storage/logoWhatsPow.png'),
+        'init' => [
+            'logo' => asset('storage/logoWhatsPow.png'),
+        ],
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return Inertia::render('Dashboard',[
+        'init' => [
+            'logo' => asset('storage/logoWhatsPow.png'),
+        ],
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

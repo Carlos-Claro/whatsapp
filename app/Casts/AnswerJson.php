@@ -17,12 +17,10 @@ class AnswerJson implements CastsAttributes
      */
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        $data = [];
-        $data['json'] = $value;
-        $data['array'] = [];
-        $data['resume'] = json_decode($value, true);
-        if ( is_array($data['resume']) && isset($data['resume'][0]['tag']) ){
+        $data = json_decode($value, true);
+        if ( isset($data['resume']) && is_array($data['resume']) && isset($data['resume'][0]['tag']) ){
             foreach ($data['resume'] as $key => $item) {
+                $data['array'][$key] = $item;
                 if ( isset($item['tag'])){
                     $filter = [
                         'start_conversation_id' => $model->id,

@@ -1,10 +1,7 @@
 <script setup>
-defineProps({
-    logo: {
-        type: String,
-    },
-});
+import { usePage } from '@inertiajs/vue3';
+const page = usePage();
 </script>
 <template>
-    <img :src="logo" alt="Logo" class="block h-9 w-auto" />
+    <img :src="page.props?.init.logo" alt="Logo" class="block h-9 w-auto" />
 </template>

@@ -1,7 +1,7 @@
 <script setup>
-import { Link, router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import { Button, InputText, Select } from 'primevue';
-import { ref, watchEffect } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({
     modelValue: {
@@ -13,7 +13,7 @@ const props = defineProps({
         default: ''
     },
     addon: {
-        type:Array,
+        type: Object,
         default: () => []
     },
     id: {
@@ -25,7 +25,11 @@ const props = defineProps({
         default: undefined
     }
 })
+console.log(props.addon);
+
 const modelValue = defineModel('modelValue')
+console.log(modelValue.value)
+
 const departmentId = defineModel('department_id')
 const emit = defineEmits(['update:modelValue', 'save', 'update:departmentId'])
 
@@ -52,7 +56,7 @@ const nextQuestion = (key) => {
             <label v-else-if="props.type == 'text'">Defina uma ação para a resposta em texto</label>
         </div>
         <div v-if="props.type == 'button'">
-            <template v-for="(answer, key) in modelValue" >
+            <template v-for="(answer, key) in modelValue.resume" >
                 <div class="grid grid-cols-3 gap-2 my-2">
                     <div v-for="(field, keyFields) in addon.button_fields">
                         <InputText

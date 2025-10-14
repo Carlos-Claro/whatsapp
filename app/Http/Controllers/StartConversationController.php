@@ -18,6 +18,7 @@ class StartConversationController extends Controller
     {
         $perPage = $request->input('perPage', env('PER_PAGE', 10));
         $data = $this->get_fields($request, 'list');
+        $data['init'] = $this->initPage();
         $data['items'] = Start_conversation::with(['related'])
             ->where($data['filters']['query'])
             ->orderBy('id', 'desc')
@@ -31,6 +32,7 @@ class StartConversationController extends Controller
     public function create()
     {
         $data = $this->get_fields(request(), 'create');
+        $data['init'] = $this->initPage();
         $data['item'] = collect(request()->all());
         if ( isset($data['item']['start_conversation_id'])){
             $data['item']['related'] = Start_conversation::where('id', request()->start_conversation_id)->first();
@@ -63,6 +65,7 @@ class StartConversationController extends Controller
     public function edit(string $id)
     {
         $data = $this->get_fields(request(), 'edit', 'id');
+        $data['init'] = $this->initPage();
         $data['item'] = Start_conversation::with('related')
             ->where('id', $id)
             ->first();

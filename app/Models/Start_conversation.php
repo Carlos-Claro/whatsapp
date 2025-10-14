@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Start_conversation extends Model
 {
     /**
-     * type = [ button, text, department
+     * type = [ button, text, department, action ]
      * status = [ 0 = inactive, 1 = active ]
      * answer = {[tag: 'tag', title: 'title']}
      */
@@ -31,6 +31,7 @@ class Start_conversation extends Model
     {
         return [
             'answer' => AnswerJson::class,
+            'created_at' => 'date:d/m/Y',
         ];
     }
     public function related()

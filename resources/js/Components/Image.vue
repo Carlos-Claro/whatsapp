@@ -12,7 +12,7 @@ const props = defineProps({
     },
     class: String,
 })
-console.log(props)
+// console.log(props)
 let image = ref('')
 let alt = ref('')
 const { isLoading } = useImage({ src: image })
