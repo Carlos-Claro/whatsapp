@@ -4,8 +4,11 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -59,5 +62,15 @@ class User extends Authenticatable
     public function messages(): MorphMany
     {
         return $this->morphMany(Messages::class, 'memberable');
+    }
+    public function departments(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Departments::class,
+            'users_has_departments',
+            'user_id',
+            'department_id',
+            'id',
+            'id');
     }
 }

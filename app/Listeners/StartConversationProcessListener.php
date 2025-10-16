@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\StartConversationProcessEvent;
 use App\Events\WhatsappWelcomeMessage;
+use App\Models\Departments;
 use App\Models\Messages;
 use App\Models\Start_conversation;
 use App\Services\Whatsapp\Utils\Message;
@@ -46,19 +47,23 @@ class StartConversationProcessListener
             exit;
         }
         if ( $this->firstMessage() ){
-            //primeiro contato, start auto response
-            $newMessage = Start_conversation::where('tag', 'start')->first();
-            if ( isset($newMessage) ){
-                $this->processMessage($newMessage);
-            }else{
+            $nextQuestion = Start_conversation::where('tag', 'start')->first();
+            if ( ! $nextQuestion ){
                 Log::notice('Não foi encontrada a mensagem: ', ['type' => 'start']);
             }
         }else{
             switch($this->message->type){
                 case 'interactive':
-                    $related = Messages::where('id', $event->item['message']->related_id)->first();
-                    $data = json_decode($related->data, true);
-                    $nextQuestion = $this->verifyOptionRelated($data, $this->message->data);
+                    if ( $event->item['message']->related_id ){
+                        $related = Messages::where('id', $event->item['message']->related_id)->first();
+                        $data = json_decode($related->data, true);
+                        $nextQuestion = $this->verifyOptionRelated($data, $this->message->data);
+                    }else{
+                        $related = $this->conversation->lastMessageSystem;
+                        $data = json_decode($related->data, true);
+
+                        $nextQuestion = $this->verifyOptionRelated($data, $this->message->data);
+                    }
                     break;
                 case 'text':
                     $related = $this->conversation->lastMessageSystem;
@@ -66,24 +71,23 @@ class StartConversationProcessListener
                     if ( isset($data[0]['action']) ){
                         $options = $this->{$data[0]['action']}($this->message->body);
                         if ( $options ){
-                            dd($data[0]['id_success'],$options);
+                            $nextQuestion = Start_conversation::where('id', $data[0]['id_success'])->first();
                         }else{
-                            dd($data[0]['id_error']);
+                            $nextQuestion = Start_conversation::where('id', $data[0]['id_error'])->first();
                         }
                     }
                     break;
             }
-            // dd($nextQuestion);
-            if ( isset($nextQuestion) && $nextQuestion ){
-                $this->processMessage($nextQuestion);
-            }else{
-                dd('sem ação');
-            }
+        }
+        if ( isset($nextQuestion) && $nextQuestion ){
+            $this->processMessage($nextQuestion, (isset($options) ? $options : []));
+        }else{
+            dd('sem ação');
         }
 
     }
 
-    private function processMessage($message){
+    private function processMessage($message, $addons = []){
         switch ( $message->type ) {
             case 'button':
                 $rows = [];
@@ -110,10 +114,7 @@ class StartConversationProcessListener
                     $message->question,
                     $action
                 );
-                $decoded = $response->decodedBody();
-                $messageSave->wam_id = $decoded['messages'][0]['id'];
-                $messageSave->status = 'delivered';
-                $messageSave->save();
+
                 break;
             case 'text':
                 $data = [
@@ -134,18 +135,48 @@ class StartConversationProcessListener
                     $message->question,
                     false
                 );
-                $decoded = $response->decodedBody();
-                $messageSave->wam_id = $decoded['messages'][0]['id'];
-                $messageSave->status = 'delivered';
-                $messageSave->save();
                 break;
             case 'department':
 
+                break;
+            case 'departments':
+                $departments = Departments::select('id','title','tag')->get();
+                $rows = [];
+                foreach( $departments as $department){
+                    $rows[] = new Button($department['tag'], $department['title']);
+                }
+                $action = new ButtonAction($rows);
+                $question = (isset($addons) ? $addons['message'] : '') . PHP_EOL . $message->question;
+                $data = [
+                    'type' => 'user',
+                    'message' => $this->setMessage(
+                        $message->type,
+                        $question,
+                        $message->caption,
+                        json_encode($departments, true)
+                    ),
+                    'contact' => $this->contact,
+                    'conversation' => $this->conversation,
+                    'processMessage' => true,
+                ];
+                $messageSave = $this->saveMessage($data);
+                $response = $this->whatsapp->sendButton(
+                    $this->contact->phone_id,
+                    $question,
+                    $action
+                );
                 break;
             default:
                 // Handle other message types if necessary
                 break;
         }
+        if ( ! isset($response) ){
+            return;
+        }
+        $decoded = $response->decodedBody();
+        $messageSave->wam_id = $decoded['messages'][0]['id'];
+        $messageSave->status = 'delivered';
+        $messageSave->save();
     }
     private function setMessage ( $type, $text, $caption, $data ){
         return [
@@ -164,9 +195,13 @@ class StartConversationProcessListener
         if ( isset($this->conversation->lastMessageSystem) && $this->conversation->lastMessageSystem->type == 'text' ){
             return false;
         }
+        if ( ! isset($this->conversation->lastMessageSystem) ){
+            return true;
+        }
         if ( ! isset($this->message->related_id) ){
             return true;
         }
+
         return false;
     }
     private function validateConversation($event){

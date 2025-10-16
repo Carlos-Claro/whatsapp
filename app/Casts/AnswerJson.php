@@ -18,7 +18,14 @@ class AnswerJson implements CastsAttributes
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
         $data = json_decode($value, true);
-        if ( isset($data['resume']) && is_array($data['resume']) && isset($data['resume'][0]['tag']) ){
+        if ( ! isset($data['resume']) ){
+            $data = [];
+            $data['json'] = $value;
+            $data['array'] = [];
+            $data['resume'] = json_decode($value, true);
+
+        }
+        if ( isset($data['resume']) && is_array($data['resume']) ){
             foreach ($data['resume'] as $key => $item) {
                 $data['array'][$key] = $item;
                 if ( isset($item['tag'])){

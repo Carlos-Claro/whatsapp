@@ -63,12 +63,12 @@ console.log(props.item.data)
                 {{ props.item.related.body }}
             </div>
             <p
-                v-if="messageType[0] == 'text' || messageType[0] == 'interactive'"
+                v-if="messageType[0] == 'text' || messageType[0] == 'interactive' || messageType[0] == 'departments'"
                 :class="`font-base ${messageSide ? 'text-left' : 'text-right'}`">
                 {{ props.item.body }}
             </p>
             <div
-                v-if="messageType[0] == 'button'"
+                v-if="messageType[0] == 'button' || messageType[0] == 'departments'"
                 :class="`font-base ${messageSide ? 'text-left' : 'text-right'}`">
                 <p>{{ props.item.body }}</p>
                 <div class="grid gap-1 grid-cols-3">

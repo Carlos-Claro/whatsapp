@@ -93,8 +93,8 @@ trait Fields {
             ],
             'text' => [
                 'action' => ['title' => 'Ação'],
-                'id_success' => ['title' => 'ID de Sucesso'],
                 'id_error' => ['title' => 'ID de Erro'],
+                'id_success' => ['title' => 'ID de Sucesso'],
             ],
         ]);
         if( $item )

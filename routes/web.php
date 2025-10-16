@@ -9,7 +9,9 @@ use App\Http\Controllers\StartConversationController;
 use App\Http\Controllers\WhatsappController;
 use App\Http\Controllers\WhatsappWebhook;
 use App\Models\Conversations;
+use App\Models\Departments;
 use App\Models\Messages;
+use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -57,6 +59,14 @@ Route::middleware('auth')->group(function () {
     });
     Route::get('get_conversation', [ConversationController::class, 'get_conversation'])->name('get_conversation');
     Route::resource('start_conversation', StartConversationController::class);
+    Route::get('set_department_has_user', function(){
+        return;
+        // $user = User::find(22);
+        // $department = Departments::find(2);
+        // $user->departments()->attach($department);
+        // $user->save();
+        // dd($user->departments);+
+    })->name('set_department_has_user');
 });
 
 Route::get('/send_message_test', [WhatsappController::class, 'send_message_test'])->name('whatsapp.send_message_test');
